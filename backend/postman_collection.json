@@ -1,0 +1,121 @@
+{
+	"info": {
+		"_postman_id": "7f1ba2cc-9223-4c77-bc7e-d0fa7d5b471d",
+		"name": "cpd document classifier",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "11515235"
+	},
+	"item": [
+		{
+			"name": "document/all",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:5000/api/v1/document/all",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"v1",
+						"document",
+						"all"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "document",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "file",
+							"type": "file",
+							"src": "/C:/Users/Marvin/Downloads/BDEA_Aufgabe_1.pdf"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://localhost:5000/api/v1/document",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"v1",
+						"document"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "document/delete/:id",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:5000/api/v1/document/delete/:id",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"v1",
+						"document",
+						"delete",
+						":id"
+					],
+					"variable": [
+						{
+							"key": "id",
+							"value": "f21284f0-0a8b-48bc-820b-c8b92e4a4e26"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "document/query/:id",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:5000/api/v1/document/query/:query",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"v1",
+						"document",
+						"query",
+						":query"
+					],
+					"variable": [
+						{
+							"key": "query",
+							"value": "Wie bekomme ich geld"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

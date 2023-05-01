@@ -1,4 +1,4 @@
-import PyPDF2
+import pypdf
 import tabula
 import os
 from dotenv import load_dotenv
@@ -6,8 +6,8 @@ import weaviate
 load_dotenv()
 
 # Get a list of all files and directories in ./files
-pdf_files = [os.path.join(dirpath, f) for (dirpath, dirnames, filenames) in os.walk('./files') for f in filenames]
-
+path = os.path.join(os.path.dirname(__file__), 'files')
+pdf_files = [os.path.join(dirpath, f) for (dirpath, dirnames, filenames) in os.walk(path) for f in filenames]
 OPEN_AI_API_KEY = os.getenv("OPEN_AI_API_KEY")
 EMBEDDING_MODEL = "text-embedding-ada-002"
 
@@ -73,7 +73,7 @@ with client.batch as batch:
     # Open the PDF file in read-binary mode
     with open(file, 'rb') as pdf_file:
       # Create a PyPDF2 object for the PDF file
-      pdf_reader = PyPDF2.PdfReader(pdf_file)
+      pdf_reader = pypdf.PdfReader(pdf_file)
       
       # Loop through each page in the PDF file and print its contents
       for page_num in range(len(pdf_reader.pages)):
