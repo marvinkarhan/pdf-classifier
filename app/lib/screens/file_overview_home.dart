@@ -1,3 +1,4 @@
+import 'package:app/widgets/pdf_card_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 
@@ -15,7 +16,7 @@ class _FileOverviewHomeScreenState extends State<FileOverviewHomeScreen> {
 
   void pickFiles() async {
     final pickedFiles = await FilePicker.platform.pickFiles(
-        allowMultiple: true);
+        allowMultiple: true, type: FileType.custom, allowedExtensions: ['pdf']);
     if (pickedFiles == null) {
       return;
     }
@@ -30,10 +31,7 @@ class _FileOverviewHomeScreenState extends State<FileOverviewHomeScreen> {
         title: Text(widget.title),
         centerTitle: true,
       ),
-      body: ListView.builder(
-        itemCount: _overallPickedFiles.length,
-        itemBuilder: (BuildContext ctxt, int index) => _buildDynamicFileList(ctxt, index),
-      ),
+      body: createBody(),
       floatingActionButton: FloatingActionButton(
         onPressed: pickFiles,
         tooltip: 'Pick files to add',
@@ -42,7 +40,19 @@ class _FileOverviewHomeScreenState extends State<FileOverviewHomeScreen> {
     );
   }
 
+  Widget createBody() {
+    if (_overallPickedFiles.isEmpty) {
+      return const Center(child: Text("No files added"));
+    } else {
+      return ListView.builder(
+        itemCount: _overallPickedFiles.length,
+        itemBuilder: (BuildContext ctxt, int index) => _buildDynamicFileList(ctxt, index),
+      );
+    }
+  }
+
   Widget _buildDynamicFileList(BuildContext ctxt, int index) {
-    return Text(_overallPickedFiles[index].name);
+    var file = _overallPickedFiles[index];
+    return PdfCardWidget(fileName: file.name, fileSize: file.size / 1000, fileTag: "sampleTag");
   }
 }
