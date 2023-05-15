@@ -1,7 +1,10 @@
 import 'package:app/screens/file_overview_home.dart';
 import 'package:flutter/material.dart';
+import 'package:app/model/Config.dart';
 
-void main() {
+void main({String? env}) async {
+  final config = Config();
+  await config.loadForEnv(env);
   runApp(const MyApp());
 }
 
