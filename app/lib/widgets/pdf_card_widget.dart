@@ -4,14 +4,10 @@ import 'package:flutter/material.dart';
 
 class PdfCardWidget extends StatelessWidget {
   final String fileName;
-  final double fileSize;
   final String fileTag;
 
   const PdfCardWidget(
-      {super.key,
-      required this.fileName,
-      required this.fileSize,
-      required this.fileTag});
+      {super.key, required this.fileName, required this.fileTag});
 
   @override
   Widget build(BuildContext context) {
@@ -21,10 +17,7 @@ class PdfCardWidget extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
           ListTile(
-            leading: const Icon(Icons.description),
-            title: Text(fileName),
-            subtitle: Text("Size: $fileSize KB"),
-          ),
+              leading: const Icon(Icons.description), title: Text(fileName)),
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [_buildTagChip(fileTag)],

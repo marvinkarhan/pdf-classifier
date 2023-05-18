@@ -1,11 +1,20 @@
 import 'package:app/screens/file_overview_home.dart';
+import 'package:app/utils/service_locator.dart';
 import 'package:flutter/material.dart';
 import 'package:app/model/Config.dart';
 
 void main({String? env}) async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await setup(env);
+  runApp(const MyApp());
+}
+
+Future<void> setup(String? env) async {
+  // Setup API from env file
   final config = Config();
   await config.loadForEnv(env);
-  runApp(const MyApp());
+  // Setup ServiceLocator for dependency injection
+  setupSl();
 }
 
 class MyApp extends StatelessWidget {
@@ -22,5 +31,3 @@ class MyApp extends StatelessWidget {
     );
   }
 }
-
-

@@ -36,6 +36,7 @@ dependencies:
   cupertino_icons: ^1.0.2
   http: ^0.13.6
   http_parser: ^4.0.2
+  get_it: ^7.6.0
 
 dev_dependencies:
   flutter_test:

@@ -1,6 +1,10 @@
+import 'package:app/api/i_backend_service.dart';
+import 'package:app/model/Document.dart';
 import 'package:app/widgets/pdf_card_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:get_it/get_it.dart';
+import 'package:app/utils/service_locator.dart';
 
 class FileOverviewHomeScreen extends StatefulWidget {
   const FileOverviewHomeScreen({super.key, required this.title});
@@ -12,16 +16,55 @@ class FileOverviewHomeScreen extends StatefulWidget {
 }
 
 class _FileOverviewHomeScreenState extends State<FileOverviewHomeScreen> {
-  final List<PlatformFile> _overallPickedFiles = [];
+  final List<Document> _overallPickedFiles = [];
+  final BackendService backendService = sl.get<BackendService>();
+
+  @override
+  void initState() {
+    super.initState();
+    getDocumentsFromBackend();
+    backendService.setOnError(_showErrorMessage);
+  }
+
+  void getDocumentsFromBackend() {
+    backendService.getAllDocuments().then((docs) {
+      _overallPickedFiles.addAll(docs);
+      setState(() {});
+    });
+  }
 
   void pickFiles() async {
     final pickedFiles = await FilePicker.platform.pickFiles(
-        allowMultiple: true, type: FileType.custom, allowedExtensions: ['pdf']);
+        allowMultiple: true,
+        type: FileType.custom,
+        allowedExtensions: ['pdf'],
+        withData: true);
     if (pickedFiles == null) {
       return;
     }
-    _overallPickedFiles.addAll(pickedFiles.files);
-    setState(() {});
+
+    for (var file in pickedFiles.files) {
+      backendService.postDocument(file).then((value) {
+        if (value) {
+          getDocumentsFromBackend();
+        }
+      });
+    }
+  }
+
+  void _showErrorMessage(String errorMessage) {
+    final alert = AlertDialog(
+      content: Text(
+        errorMessage,
+        style: const TextStyle(color: Colors.red),
+      ),
+    );
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
+    );
   }
 
   @override
@@ -46,13 +89,14 @@ class _FileOverviewHomeScreenState extends State<FileOverviewHomeScreen> {
     } else {
       return ListView.builder(
         itemCount: _overallPickedFiles.length,
-        itemBuilder: (BuildContext ctxt, int index) => _buildDynamicFileList(ctxt, index),
+        itemBuilder: (BuildContext ctxt, int index) =>
+            _buildDynamicFileList(ctxt, index),
       );
     }
   }
 
   Widget _buildDynamicFileList(BuildContext ctxt, int index) {
     var file = _overallPickedFiles[index];
-    return PdfCardWidget(fileName: file.name, fileSize: file.size / 1000, fileTag: "sampleTag");
+    return PdfCardWidget(fileName: file.title, fileTag: "sampleTag");
   }
 }
