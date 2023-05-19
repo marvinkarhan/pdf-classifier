@@ -28,6 +28,7 @@ class _FileOverviewHomeScreenState extends State<FileOverviewHomeScreen> {
 
   void getDocumentsFromBackend() {
     backendService.getAllDocuments().then((docs) {
+      _overallPickedFiles.clear();
       _overallPickedFiles.addAll(docs);
       setState(() {});
     });
@@ -67,6 +68,11 @@ class _FileOverviewHomeScreenState extends State<FileOverviewHomeScreen> {
     );
   }
 
+  void _onDeleteCard(String id) {
+    backendService.deleteDocumentById(id);
+    getDocumentsFromBackend();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -97,6 +103,6 @@ class _FileOverviewHomeScreenState extends State<FileOverviewHomeScreen> {
 
   Widget _buildDynamicFileList(BuildContext ctxt, int index) {
     var file = _overallPickedFiles[index];
-    return PdfCardWidget(fileName: file.title, fileTag: "sampleTag");
+    return PdfCardWidget(file: file, fileTag: "sampleTag", onDelete: _onDeleteCard,);
   }
 }

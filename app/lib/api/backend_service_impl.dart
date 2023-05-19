@@ -26,6 +26,7 @@ class BackendServiceImpl implements BackendService {
 
   @override
   Future<List<Document>> getAllDocuments() async {
+    log("Fetching all documents");
     http.Response res = await http
         .get(Uri.parse("$backendUri${BackendServiceImpl.getAllDocumentsUri}"));
     if (res.statusCode != 201 && res.statusCode != 200) {
@@ -34,6 +35,7 @@ class BackendServiceImpl implements BackendService {
     }
     List parsedRes = jsonDecode(res.body);
     List<Document> docs = parsedRes.map((e) => Document.fromJson(e)).toList();
+    log("Fetched all documents successfully");
     return docs;
   }
 
@@ -57,9 +59,16 @@ class BackendServiceImpl implements BackendService {
   }
 
   @override
-  Future<http.Response> deleteDocumentById(String id) {
-    return http.get(Uri.parse(
+  Future<bool> deleteDocumentById(String id) async {
+    log("Deleting file $id");
+    var res = await http.get(Uri.parse(
         "$backendUri${BackendServiceImpl.deleteDocumentByIdUri}/$id"));
+    if (res.statusCode != 201 && res.statusCode != 200) {
+      onError?.call("Error during document delete, cannot delete document");
+      return false;
+    }
+    log("Deleted file $id successfully");
+    return true;
   }
 
   @override

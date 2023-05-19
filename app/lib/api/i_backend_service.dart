@@ -5,7 +5,7 @@ import 'package:file_picker/file_picker.dart';
 abstract class BackendService {
   Future<List<Document>> getAllDocuments();
   Future<bool> postDocument(PlatformFile file);
-  Future<http.Response> deleteDocumentById(String id);
+  Future<bool> deleteDocumentById(String id);
   Future<http.Response> queryDocumentById(String id);
   void setOnError(void Function(String errorMessage)? onError);
 }

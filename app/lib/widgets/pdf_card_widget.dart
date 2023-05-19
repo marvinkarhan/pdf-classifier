@@ -1,13 +1,15 @@
 import 'dart:math';
 
+import 'package:app/model/Document.dart';
 import 'package:flutter/material.dart';
 
 class PdfCardWidget extends StatelessWidget {
-  final String fileName;
+  final Document file;
   final String fileTag;
+  final Function(String id) onDelete;
 
   const PdfCardWidget(
-      {super.key, required this.fileName, required this.fileTag});
+      {super.key, required this.file, required this.fileTag, required this.onDelete});
 
   @override
   Widget build(BuildContext context) {
@@ -17,10 +19,10 @@ class PdfCardWidget extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
           ListTile(
-              leading: const Icon(Icons.description), title: Text(fileName)),
+              leading: const Icon(Icons.description), title: Text(file.title)),
           Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [_buildTagChip(fileTag)],
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [_buildTagChip(fileTag), _buildDeleteButton()],
           )
         ],
       ),
@@ -43,5 +45,14 @@ class PdfCardWidget extends StatelessWidget {
           shadowColor: Colors.grey[60],
           padding: const EdgeInsets.all(2.0),
         ));
+  }
+
+  Widget _buildDeleteButton() {
+    return IconButton(
+        icon: const Icon(Icons.delete),
+        onPressed: () {
+        onDelete.call(file.id);
+    },
+    );
   }
 }
