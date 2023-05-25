@@ -2,11 +2,20 @@ class Document {
   final String id;
   final String title;
   final String content;
+  final double? certainty;
+  final double? distance;
 
-  Document(this.id, this.title, this.content);
+  Document(
+      {required this.id,
+      required this.title,
+      required this.content,
+      this.certainty,
+      this.distance});
 
   Document.fromJson(Map<String, dynamic> json)
       : id = json["id"],
         title = json["title"],
-        content = json["content"];
+        content = json["content"],
+        certainty = json["certainty"],
+        distance = json["distance"];
 }

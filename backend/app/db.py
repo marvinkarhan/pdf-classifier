@@ -74,6 +74,7 @@ def near_text(query, collection_name):
     db.query
     .get(collection_name, properties)
     .with_near_text(nearText)
+    .with_additional("id")
     .with_limit(20)
     .do()
   )["data"]["Get"][collection_name]

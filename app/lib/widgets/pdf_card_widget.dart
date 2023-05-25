@@ -9,7 +9,10 @@ class PdfCardWidget extends StatelessWidget {
   final Function(String id) onDelete;
 
   const PdfCardWidget(
-      {super.key, required this.file, required this.fileTag, required this.onDelete});
+      {super.key,
+      required this.file,
+      required this.fileTag,
+      required this.onDelete});
 
   @override
   Widget build(BuildContext context) {
@@ -19,7 +22,13 @@ class PdfCardWidget extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
           ListTile(
-              leading: const Icon(Icons.description), title: Text(file.title)),
+            leading: const Icon(Icons.description),
+            title: Text(file.title),
+            subtitle: (file.certainty != null && file.distance != null)
+                ? Text(
+                    'Certainty: ${(file.certainty! * 100).toStringAsFixed(2)}, Distance: ${file.distance!.toStringAsFixed(4)}')
+                : null,
+          ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [_buildTagChip(fileTag), _buildDeleteButton()],
@@ -49,10 +58,10 @@ class PdfCardWidget extends StatelessWidget {
 
   Widget _buildDeleteButton() {
     return IconButton(
-        icon: const Icon(Icons.delete),
-        onPressed: () {
+      icon: const Icon(Icons.delete),
+      onPressed: () {
         onDelete.call(file.id);
-    },
+      },
     );
   }
 }

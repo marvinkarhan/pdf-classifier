@@ -73,6 +73,7 @@ def query_document(query: str):
         for document in result:
             document["certainty"] = document["_additional"]["certainty"]
             document["distance"] = document["_additional"]["distance"]
+            document["id"] = document["_additional"]["id"]
             del document["_additional"]
         return result, 200
     except Exception as e:

@@ -72,9 +72,18 @@ class BackendServiceImpl implements BackendService {
   }
 
   @override
-  Future<http.Response> queryDocumentById(String id) {
-    return http.get(
+  Future<List<Document>> queryDocumentById(String id) async {
+    log("Query for documents");
+    http.Response res = await http.get(
         Uri.parse("$backendUri${BackendServiceImpl.queryDocumentByIdUri}/$id"));
+    if (res.statusCode != 201 && res.statusCode != 200) {
+      onError?.call("Error during document fetch, cannot query documents");
+      return [];
+    }
+    List parsedRes = jsonDecode(res.body);
+    List<Document> docs = parsedRes.map((e) => Document.fromJson(e)).toList();
+    log("Queried for documents successfully");
+    return docs;
   }
 
   @override
