@@ -7,5 +7,6 @@ abstract class BackendService {
   Future<bool> postDocument(PlatformFile file);
   Future<bool> deleteDocumentById(String id);
   Future<List<Document>> queryDocumentById(String id);
+  Future<String> downloadDocumentById(String id);
   void setOnError(void Function(String errorMessage)? onError);
 }

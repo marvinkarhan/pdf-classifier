@@ -7,12 +7,14 @@ class PdfCardWidget extends StatelessWidget {
   final Document file;
   final String fileTag;
   final Function(String id) onDelete;
+  final Function(String id) openFile;
 
   const PdfCardWidget(
       {super.key,
       required this.file,
       required this.fileTag,
-      required this.onDelete});
+      required this.onDelete,
+      required this.openFile});
 
   @override
   Widget build(BuildContext context) {
@@ -28,6 +30,7 @@ class PdfCardWidget extends StatelessWidget {
                 ? Text(
                     'Certainty: ${(file.certainty! * 100).toStringAsFixed(2)}, Distance: ${file.distance!.toStringAsFixed(4)}')
                 : null,
+            onTap: () => openFile.call(file.id),
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,

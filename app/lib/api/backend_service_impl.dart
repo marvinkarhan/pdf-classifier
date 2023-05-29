@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:developer';
+import 'dart:io';
 
 import 'package:app/api/i_backend_service.dart';
 import 'package:app/model/Config.dart';
@@ -7,6 +8,7 @@ import 'package:app/model/Document.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
+import 'package:path_provider/path_provider.dart';
 
 class BackendServiceImpl implements BackendService {
   String backendUri = "";
@@ -17,6 +19,8 @@ class BackendServiceImpl implements BackendService {
       "$baseApiPath/document/delete"; // uri param :id
   static const String queryDocumentByIdUri =
       "$baseApiPath/document/query"; // uri param :id
+  static const String downloadDocumentByIdUri =
+      "$baseApiPath/document"; // uri param :id
 
   void Function(String message)? onError;
 
@@ -84,6 +88,27 @@ class BackendServiceImpl implements BackendService {
     List<Document> docs = parsedRes.map((e) => Document.fromJson(e)).toList();
     log("Queried for documents successfully");
     return docs;
+  }
+
+  @override
+  Future<String> downloadDocumentById(String id) async {
+    String dir = (await getApplicationDocumentsDirectory()).path;
+    File checkFile = File('$dir/$id');
+    if (checkFile.existsSync() == true) {
+      return checkFile.path;
+    }
+    log("Downloading document $id");
+    final res = await http.get(Uri.parse(
+        "$backendUri${BackendServiceImpl.downloadDocumentByIdUri}/$id"));
+    if (res.statusCode != 201 && res.statusCode != 200) {
+      onError?.call("Error during document fetch, cannot query documents");
+      return "";
+    }
+    var bytes = res.bodyBytes;
+    File file = File('$dir/$id');
+    await file.writeAsBytes(bytes);
+    log("Downloaded document successfully, path: ${file.path}");
+    return file.path;
   }
 
   @override

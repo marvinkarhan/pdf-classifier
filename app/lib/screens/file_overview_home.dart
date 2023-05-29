@@ -1,5 +1,6 @@
 import 'package:app/api/i_backend_service.dart';
 import 'package:app/model/Document.dart';
+import 'package:app/screens/pdf_viewer.dart';
 import 'package:app/widgets/pdf_card_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
@@ -19,6 +20,7 @@ class FileOverviewHomeScreen extends StatefulWidget {
 class _FileOverviewHomeScreenState extends State<FileOverviewHomeScreen> {
   final List<Document> _overallPickedFiles = [];
   final BackendService backendService = sl.get<BackendService>();
+  String _showFileId = "";
   Timer? _debounce;
 
   @override
@@ -96,6 +98,12 @@ class _FileOverviewHomeScreenState extends State<FileOverviewHomeScreen> {
     getDocumentsFromBackend();
   }
 
+  void _openFile(String id) {
+    setState(() {
+      _showFileId = id;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -113,39 +121,41 @@ class _FileOverviewHomeScreenState extends State<FileOverviewHomeScreen> {
   }
 
   Widget createBody() {
-    return Column(
-      children: <Widget>[
-        Padding(
-          padding: const EdgeInsets.fromLTRB(8.0, 15.0, 8.0, 12.0),
-          child: TextField(
-            onChanged: _onSearchChanged,
-            decoration: const InputDecoration(
-              fillColor: Colors.white,
-              filled: true,
-              labelText: "Search",
-              hintText: "Search",
-              prefixIcon: Icon(Icons.search),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.all(Radius.circular(25.0)),
-                borderSide: BorderSide(width: 2.0),
+    return _showFileId != ""
+        ? PDFViewer(id: _showFileId)
+        : Column(
+            children: <Widget>[
+              Padding(
+                padding: const EdgeInsets.fromLTRB(8.0, 15.0, 8.0, 12.0),
+                child: TextField(
+                  onChanged: _onSearchChanged,
+                  decoration: const InputDecoration(
+                    fillColor: Colors.white,
+                    filled: true,
+                    labelText: "Search",
+                    hintText: "Search",
+                    prefixIcon: Icon(Icons.search),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(25.0)),
+                      borderSide: BorderSide(width: 2.0),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(25.0)),
+                      borderSide: BorderSide(width: 3.0, color: Colors.blue),
+                    ),
+                  ),
+                ),
               ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.all(Radius.circular(25.0)),
-                borderSide: BorderSide(width: 3.0, color: Colors.blue),
-              ),
-            ),
-          ),
-        ),
-        Expanded(
-            child: _overallPickedFiles.isEmpty
-                ? const Center(child: Text("No files added"))
-                : ListView.builder(
-                    itemCount: _overallPickedFiles.length,
-                    itemBuilder: (BuildContext ctxt, int index) =>
-                        _buildDynamicFileList(ctxt, index),
-                  )),
-      ],
-    );
+              Expanded(
+                  child: _overallPickedFiles.isEmpty
+                      ? const Center(child: Text("No files added"))
+                      : ListView.builder(
+                          itemCount: _overallPickedFiles.length,
+                          itemBuilder: (BuildContext ctxt, int index) =>
+                              _buildDynamicFileList(ctxt, index),
+                        )),
+            ],
+          );
   }
 
   Widget _buildDynamicFileList(BuildContext ctxt, int index) {
@@ -154,6 +164,7 @@ class _FileOverviewHomeScreenState extends State<FileOverviewHomeScreen> {
       file: file,
       fileTag: "sampleTag",
       onDelete: _onDeleteCard,
+      openFile: _openFile,
     );
   }
 }

@@ -23,6 +23,16 @@ document_schema = {
             "description": "Contents of the document",
             "dataType": ["text"],
         },
+        {
+            "name": "data",
+            "description": "File data as byte array",
+            "dataType": ["blob"],
+            "moduleConfig": {
+                "text2vec-openai": {
+                    "skip": True,
+                }
+            },
+        },
     ],
 }
 
@@ -53,8 +63,8 @@ def init_db(app: Flask):
       db = get_db()
 
       schema = db.schema.get()
-      if schema.get("classes") is None:
-          db.schema.create(document_schema)
+      if schema.get("classes") is None or not schema["classes"]:
+          db.schema.create_class(document_schema)
 
 def near_text(query, collection_name):
   """
