@@ -62,6 +62,7 @@ class PdfCardWidget extends StatelessWidget {
   Widget _buildDeleteButton() {
     return IconButton(
       icon: const Icon(Icons.delete),
+      key: Key("delBtn_${file.id}"),
       onPressed: () {
         onDelete.call(file.id);
       },

@@ -2,8 +2,8 @@ class Document {
   final String id;
   final String title;
   final String content;
-  final double? certainty;
-  final double? distance;
+  double? certainty;
+  double? distance;
 
   Document(
       {required this.id,
