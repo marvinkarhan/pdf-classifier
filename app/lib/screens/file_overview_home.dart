@@ -155,7 +155,16 @@ class _FileOverviewHomeScreenState extends State<FileOverviewHomeScreen> {
         ],
       ),
       child: ListTile(
-        leading: const Icon(Icons.picture_as_pdf),
+        leading: file.certainty != null
+            ? CircleAvatar(
+                backgroundColor:
+                    Color.lerp(Colors.red, Colors.green, file.certainty!),
+                child: Text(
+                  '${(file.certainty! * 100).toStringAsFixed(0)}%',
+                  style: const TextStyle(color: Colors.white),
+                ),
+              )
+            : const Icon(Icons.picture_as_pdf),
         title: Text(file.title),
         onTap: () => _openFile(file.id),
       ),
