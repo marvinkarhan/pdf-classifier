@@ -1,6 +1,7 @@
 import 'package:app/api/i_backend_service.dart';
 import 'package:app/model/Document.dart';
 import 'package:app/screens/pdf_viewer.dart';
+import 'package:app/widgets/search_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
@@ -18,26 +19,12 @@ class FileOverviewHomeScreen extends StatefulWidget {
 class _FileOverviewHomeScreenState extends State<FileOverviewHomeScreen> {
   final List<Document> _overallPickedFiles = [];
   final BackendService backendService = sl.get<BackendService>();
-  Timer? _debounce;
 
   @override
   void initState() {
     super.initState();
     getDocumentsFromBackend();
     backendService.setOnError(_showErrorMessage);
-  }
-
-  @override
-  void dispose() {
-    _debounce?.cancel();
-    super.dispose();
-  }
-
-  void _onSearchChanged(String query) {
-    if (_debounce?.isActive ?? false) _debounce?.cancel();
-    _debounce = Timer(const Duration(milliseconds: 500), () {
-      getDocumentsFromBackend(query);
-    });
   }
 
   void getDocumentsFromBackend([String query = ""]) {
@@ -121,26 +108,8 @@ class _FileOverviewHomeScreenState extends State<FileOverviewHomeScreen> {
   Widget createBody() {
     return Column(
       children: <Widget>[
-        Padding(
-          padding: const EdgeInsets.fromLTRB(8.0, 15.0, 8.0, 12.0),
-          child: TextField(
-            onChanged: _onSearchChanged,
-            decoration: const InputDecoration(
-              fillColor: Colors.white,
-              filled: true,
-              labelText: "Search",
-              hintText: "Search",
-              prefixIcon: Icon(Icons.search),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.all(Radius.circular(25.0)),
-                borderSide: BorderSide(width: 2.0),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.all(Radius.circular(25.0)),
-                borderSide: BorderSide(width: 3.0, color: Colors.blue),
-              ),
-            ),
-          ),
+        Search(
+          onSearch: getDocumentsFromBackend,
         ),
         Expanded(
             child: _overallPickedFiles.isEmpty
