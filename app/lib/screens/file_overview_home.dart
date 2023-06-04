@@ -1,9 +1,9 @@
 import 'package:app/api/i_backend_service.dart';
 import 'package:app/model/Document.dart';
 import 'package:app/screens/pdf_viewer.dart';
-import 'package:app/widgets/pdf_card_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:get_it/get_it.dart';
 import 'package:app/utils/service_locator.dart';
 import 'dart:async';
@@ -94,6 +94,9 @@ class _FileOverviewHomeScreenState extends State<FileOverviewHomeScreen> {
   }
 
   void _onDeleteCard(String id) {
+    setState(() {
+      _overallPickedFiles.removeWhere((element) => element.id == id);
+    });
     backendService.deleteDocumentById(id);
     getDocumentsFromBackend();
   }
@@ -148,23 +151,52 @@ class _FileOverviewHomeScreenState extends State<FileOverviewHomeScreen> {
               ),
               Expanded(
                   child: _overallPickedFiles.isEmpty
-                      ? const Center(child: Text("No files added"))
-                      : ListView.builder(
+                      ? ListView(
+                          children: [
+                            ListTile(
+                              title: const Text("No files added"),
+                              trailing: const Icon(Icons.add),
+                              onTap: pickFiles,
+                            ),
+                          ],
+                        )
+                      : ListView.separated(
                           itemCount: _overallPickedFiles.length,
                           itemBuilder: (BuildContext ctxt, int index) =>
                               _buildDynamicFileList(ctxt, index),
-                        )),
+                          separatorBuilder: (BuildContext ctxt, int index) =>
+                              const Divider())),
             ],
           );
   }
 
   Widget _buildDynamicFileList(BuildContext ctxt, int index) {
     var file = _overallPickedFiles[index];
-    return PdfCardWidget(
-      file: file,
-      fileTag: "sampleTag",
-      onDelete: _onDeleteCard,
-      openFile: _openFile,
+    return Slidable(
+      key: Key(file.id),
+      endActionPane: ActionPane(
+        motion: const ScrollMotion(),
+        extentRatio: 0.2,
+        children: [
+          SlidableAction(
+            onPressed: (context) {
+              _onDeleteCard(file.id);
+
+              ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('${file.title} deleted')));
+            },
+            backgroundColor: Colors.red,
+            foregroundColor: Colors.white,
+            icon: Icons.delete,
+            label: 'Delete',
+          ),
+        ],
+      ),
+      child: ListTile(
+        leading: const Icon(Icons.picture_as_pdf),
+        title: Text(file.title),
+        onTap: () => _openFile(file.id),
+      ),
     );
   }
 }
