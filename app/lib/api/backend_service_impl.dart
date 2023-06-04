@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'dart:io';
 
 import 'package:app/api/i_backend_service.dart';
+import 'package:app/model/Category.dart';
 import 'package:app/model/Config.dart';
 import 'package:app/model/Document.dart';
 import 'package:file_picker/file_picker.dart';
@@ -15,12 +16,14 @@ class BackendServiceImpl implements BackendService {
   static const String baseApiPath = "/api/v1";
   static const String getAllDocumentsUri = "$baseApiPath/document/all";
   static const String postDocumentUri = "$baseApiPath/document";
-  static const String deleteDocumentByIdUri =
-      "$baseApiPath/document/delete"; // uri param :id
+  static const String deleteResourceByIdUri =
+      "$baseApiPath/resource/delete"; // uri param :id
   static const String queryDocumentByIdUri =
       "$baseApiPath/document/query"; // uri param :id
   static const String downloadDocumentByIdUri =
       "$baseApiPath/document"; // uri param :id
+  static const String getAllCategoriesUri = "$baseApiPath/category/all";
+  static const String postCategoryUri = "$baseApiPath/category";
 
   void Function(String message)? onError;
 
@@ -63,15 +66,15 @@ class BackendServiceImpl implements BackendService {
   }
 
   @override
-  Future<bool> deleteDocumentById(String id) async {
+  Future<bool> deleteResourceById(String id) async {
     log("Deleting file $id");
     var res = await http.get(Uri.parse(
-        "$backendUri${BackendServiceImpl.deleteDocumentByIdUri}/$id"));
+        "$backendUri${BackendServiceImpl.deleteResourceByIdUri}/$id"));
     if (res.statusCode != 201 && res.statusCode != 200) {
-      onError?.call("Error during document delete, cannot delete document");
+      onError?.call("Error during resource delete, cannot delete resource");
       return false;
     }
-    log("Deleted file $id successfully");
+    log("Deleted resource $id successfully");
     return true;
   }
 
@@ -109,6 +112,39 @@ class BackendServiceImpl implements BackendService {
     await file.writeAsBytes(bytes);
     log("Downloaded document successfully, path: ${file.path}");
     return file.path;
+  }
+
+  @override
+  Future<List<Category>> getAllCategories() async {
+    log("Fetching all categories");
+    http.Response res = await http
+        .get(Uri.parse("$backendUri${BackendServiceImpl.getAllCategoriesUri}"));
+    if (res.statusCode != 201 && res.statusCode != 200) {
+      onError?.call("Error during categories fetch, cannot get categories");
+      return [];
+    }
+    List parsedRes = jsonDecode(res.body);
+    List<Category> docs = parsedRes.map((e) => Category.fromJson(e)).toList();
+    log("Fetched all categories successfully");
+    return docs;
+  }
+
+  @override
+  Future<bool> postCategory(String title, String? parentId) async {
+    final uri = Uri.parse("$backendUri${BackendServiceImpl.postCategoryUri}");
+    log("Uploading category $title to backend");
+    var res = await http.post(uri,
+        body: jsonEncode({"title": title, "parentId": parentId}),
+        headers: {
+          HttpHeaders.contentTypeHeader: "application/json",
+        });
+    if (res.statusCode != 201 && res.statusCode != 200) {
+      onError?.call("Error during category creation, will be ignored");
+      log(res.body);
+      return false;
+    }
+    log("Created category successfully");
+    return true;
   }
 
   @override

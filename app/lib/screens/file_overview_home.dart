@@ -1,10 +1,14 @@
+import 'dart:developer';
+
 import 'package:app/api/i_backend_service.dart';
+import 'package:app/model/Category.dart';
 import 'package:app/model/Document.dart';
 import 'package:app/screens/pdf_viewer.dart';
 import 'package:app/widgets/search_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:get_it/get_it.dart';
 import 'package:app/utils/service_locator.dart';
 import 'dart:async';
@@ -18,12 +22,18 @@ class FileOverviewHomeScreen extends StatefulWidget {
 
 class _FileOverviewHomeScreenState extends State<FileOverviewHomeScreen> {
   final List<Document> _overallPickedFiles = [];
+  final List<Category> _categories = [];
   final BackendService backendService = sl.get<BackendService>();
+  List<String> _categoryStack = ["root"];
+  List<Category> _selectedCategories = [];
+  final TextEditingController _createCategoryTextFieldController =
+      TextEditingController();
 
   @override
   void initState() {
     super.initState();
     getDocumentsFromBackend();
+    getCategoriesFromBackend();
     backendService.setOnError(_showErrorMessage);
   }
 
@@ -41,6 +51,25 @@ class _FileOverviewHomeScreenState extends State<FileOverviewHomeScreen> {
         setState(() {});
       });
     }
+  }
+
+  void getCategoriesFromBackend() {
+    backendService.getAllCategories().then((cats) {
+      _categories.clear();
+      _categories.addAll(cats);
+      setSelectedCategory(_categoryStack.last);
+      setState(() {});
+    });
+  }
+
+  void setSelectedCategory(String category) {
+    if (_categoryStack.last != category) {
+      _categoryStack.add(category);
+    }
+    _selectedCategories = _categories
+        .where((element) => element.parentId == _categoryStack.last)
+        .toList();
+    setState(() {});
   }
 
   void pickFiles() async {
@@ -62,6 +91,14 @@ class _FileOverviewHomeScreenState extends State<FileOverviewHomeScreen> {
     }
   }
 
+  void createCategory(String title) async {
+    backendService.postCategory(title, _categoryStack.last).then((value) {
+      if (value) {
+        getCategoriesFromBackend();
+      }
+    });
+  }
+
   void _showErrorMessage(String errorMessage) {
     final alert = AlertDialog(
       content: Text(
@@ -77,12 +114,57 @@ class _FileOverviewHomeScreenState extends State<FileOverviewHomeScreen> {
     );
   }
 
-  void _onDeleteCard(String id) {
+  Future<void> _showCreateCategoryDialog() {
+    return showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Create a category'),
+          content: TextField(
+            controller: _createCategoryTextFieldController,
+            decoration: const InputDecoration(hintText: "Category title"),
+            autofocus: true,
+          ),
+          actions: <Widget>[
+            OutlinedButton(
+              child: const Text('cancel'),
+              onPressed: () {
+                _createCategoryTextFieldController.clear();
+                Navigator.pop(context);
+              },
+            ),
+            OutlinedButton(
+              style: ButtonStyle(
+                foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
+                backgroundColor: MaterialStateProperty.all<Color>(Colors.blue),
+              ),
+              child: const Text('create'),
+              onPressed: () {
+                createCategory(_createCategoryTextFieldController.text);
+                _createCategoryTextFieldController.clear();
+                Navigator.pop(context);
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _onDeleteDocument(String id) {
     setState(() {
       _overallPickedFiles.removeWhere((element) => element.id == id);
     });
-    backendService.deleteDocumentById(id);
+    backendService.deleteResourceById(id);
     getDocumentsFromBackend();
+  }
+
+  void _onDeleteCategory(String id) {
+    setState(() {
+      _categories.removeWhere((element) => element.id == id);
+    });
+    backendService.deleteResourceById(id);
+    getCategoriesFromBackend();
   }
 
   void _openFile(String id) {
@@ -97,10 +179,31 @@ class _FileOverviewHomeScreenState extends State<FileOverviewHomeScreen> {
         centerTitle: true,
       ),
       body: createBody(),
-      floatingActionButton: FloatingActionButton(
-        onPressed: pickFiles,
-        tooltip: 'Pick files to add',
-        child: const Icon(Icons.add),
+      floatingActionButton: SpeedDial(
+        icon: Icons.add,
+        backgroundColor: Colors.blue,
+        visible: true,
+        spacing: 8,
+        children: [
+          SpeedDialChild(
+            child: const Icon(Icons.picture_as_pdf, color: Colors.blue),
+            backgroundColor: Colors.white,
+            onTap: pickFiles,
+            label: 'Add files',
+            labelStyle: const TextStyle(
+                fontWeight: FontWeight.w500, color: Colors.blue),
+            labelBackgroundColor: Colors.white,
+          ),
+          SpeedDialChild(
+            child: const Icon(Icons.create_new_folder, color: Colors.blue),
+            backgroundColor: Colors.white,
+            onTap: _showCreateCategoryDialog,
+            label: 'Create a category',
+            labelStyle: const TextStyle(
+                fontWeight: FontWeight.w500, color: Colors.blue),
+            labelBackgroundColor: Colors.white,
+          ),
+        ],
       ),
     );
   }
@@ -123,7 +226,9 @@ class _FileOverviewHomeScreenState extends State<FileOverviewHomeScreen> {
                     ],
                   )
                 : ListView.separated(
-                    itemCount: _overallPickedFiles.length,
+                    itemCount: _overallPickedFiles.length +
+                        _selectedCategories.length +
+                        (_categoryStack.last == "root" ? 0 : 1),
                     itemBuilder: (BuildContext ctxt, int index) =>
                         _buildDynamicFileList(ctxt, index),
                     separatorBuilder: (BuildContext ctxt, int index) =>
@@ -133,7 +238,28 @@ class _FileOverviewHomeScreenState extends State<FileOverviewHomeScreen> {
   }
 
   Widget _buildDynamicFileList(BuildContext ctxt, int index) {
-    var file = _overallPickedFiles[index];
+    // add row to navigate to parent category
+    if (_categoryStack.last != "root") {
+      if (index == 0) {
+        return ListTile(
+          title: const Text("Go to parent category"),
+          leading: const Icon(Icons.arrow_back),
+          onTap: () {
+            _categoryStack.removeLast();
+            setSelectedCategory(_categoryStack.last);
+          },
+        );
+      }
+      index -= 1;
+    }
+    var isCategory = index < _selectedCategories.length;
+    return isCategory
+        ? buildCategoryListTile(_selectedCategories[index])
+        : buildFileListTile(
+            _overallPickedFiles[index - _selectedCategories.length]);
+  }
+
+  Widget buildFileListTile(Document file) {
     return Slidable(
       key: Key(file.id),
       endActionPane: ActionPane(
@@ -142,10 +268,10 @@ class _FileOverviewHomeScreenState extends State<FileOverviewHomeScreen> {
         children: [
           SlidableAction(
             onPressed: (context) {
-              _onDeleteCard(file.id);
+              _onDeleteDocument(file.id);
 
               ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('${file.title} deleted')));
+                  SnackBar(content: Text('File: ${file.title} deleted')));
             },
             backgroundColor: Colors.red,
             foregroundColor: Colors.white,
@@ -167,6 +293,36 @@ class _FileOverviewHomeScreenState extends State<FileOverviewHomeScreen> {
             : const Icon(Icons.picture_as_pdf),
         title: Text(file.title),
         onTap: () => _openFile(file.id),
+      ),
+    );
+  }
+
+  Widget buildCategoryListTile(Category category) {
+    return Slidable(
+      key: Key(category.id),
+      endActionPane: ActionPane(
+        motion: const ScrollMotion(),
+        extentRatio: 0.2,
+        children: [
+          SlidableAction(
+            onPressed: (context) {
+              _onDeleteCategory(category.id);
+
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                  content: Text('Category: ${category.title} deleted')));
+            },
+            backgroundColor: Colors.red,
+            foregroundColor: Colors.white,
+            icon: Icons.delete,
+            label: 'Delete',
+          ),
+        ],
+      ),
+      child: ListTile(
+        leading: const Icon(Icons.folder),
+        title: Text(category.title),
+        trailing: const Icon(Icons.navigate_next),
+        onTap: () => setSelectedCategory(category.id),
       ),
     );
   }

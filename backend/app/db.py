@@ -36,6 +36,23 @@ document_schema = {
     ],
 }
 
+# should be in a separate db, but due to simplicity we use the same db
+category_schema = {
+    "class": "Category",
+    "description": "A collection of categories",
+    "properties": [
+        {
+            "name": "title",
+            "description": "Title of the Category",
+            "dataType": ["string"],
+        },
+        {
+            "name": "parentId",
+            "description": "File data as byte array",
+            "dataType": ["string"],
+        },
+    ],
+}
 
 def get_db() -> weaviate.Client:
     if "db" not in g:
@@ -65,6 +82,7 @@ def init_db(app: Flask):
       schema = db.schema.get()
       if schema.get("classes") is None or not schema["classes"]:
           db.schema.create_class(document_schema)
+          db.schema.create_class(category_schema)
 
 def near_text(query, collection_name):
   """

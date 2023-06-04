@@ -1,5 +1,6 @@
 
 import 'package:app/api/i_backend_service.dart';
+import 'package:app/model/Category.dart';
 import 'package:app/model/Document.dart';
 import 'package:file_picker/file_picker.dart';
 
@@ -7,19 +8,31 @@ class BackendServiceMock implements BackendService {
   final Document _mockDoc1 = Document(id: "mockId1", title: "mockTitle1", content: "mockContent1", distance: 80, certainty: 69);
   final Document _mockDoc2 = Document(id: "mockId2", title: "mockTitle2", content: "mockContent2", distance: 70, certainty: 59);
   final Document _mockDoc3 = Document(id: "mockId3", title: "mockTitle3", content: "mockContent3", distance: 60, certainty: 49);
-  List<Document> store = [];
+  final Category _mockCat1 =
+      Category(id: "mockIdCat1", title: "mockTitle1", parentId: "root");
+  final Category _mockCat2 =
+      Category(id: "mockIdCat2", title: "mockTitle1", parentId: "mockIdCat2");
+  List<Document> documentsStore = [];
+  List<Category> categoriesStore = [];
   void Function(String message)? onError;
 
   BackendServiceMock() {
-    store.add(_mockDoc1);
-    store.add(_mockDoc2);
-    store.add(_mockDoc3);
+    documentsStore.add(_mockDoc1);
+    documentsStore.add(_mockDoc2);
+    documentsStore.add(_mockDoc3);
+    categoriesStore.add(_mockCat1);
+    categoriesStore.add(_mockCat2);
   }
   @override
-  Future<bool> deleteDocumentById(String id) async {
-    for (var element in store) {
+  Future<bool> deleteResourceById(String id) async {
+    for (var element in documentsStore) {
       if (element.id == id) {
-        return store.remove(element);
+        return documentsStore.remove(element);
+      }
+    }
+    for (var element in categoriesStore) {
+      if (element.id == id) {
+        return categoriesStore.remove(element);
       }
     }
     return false;
@@ -32,14 +45,14 @@ class BackendServiceMock implements BackendService {
 
   @override
   Future<List<Document>> getAllDocuments() async {
-    return store;
+    return documentsStore;
   }
 
   @override
   Future<bool> postDocument(PlatformFile file) async {
-    double nr = store.length + 1;
+    double nr = documentsStore.length + 1;
     Document newDoc = Document(id: "mockId$nr", title: "mockTitle$nr", content: "mockContent$nr", distance: 10 + nr, certainty: 10 + nr);
-    store.add(newDoc);
+    documentsStore.add(newDoc);
     return true;
   }
 
@@ -59,4 +72,17 @@ class BackendServiceMock implements BackendService {
     this.onError = onError;
   }
 
+  @override
+  Future<List<Category>> getAllCategories() async {
+    return categoriesStore;
+  }
+
+  @override
+  Future<bool> postCategory(String title, String? parentId) async {
+    double nr = categoriesStore.length + 1;
+    Category newCat = Category(
+        id: "mockIdCat$nr", title: "mockTitle$nr", parentId: "mockParentId$nr");
+    categoriesStore.add(newCat);
+    return true;
+  }
 }
