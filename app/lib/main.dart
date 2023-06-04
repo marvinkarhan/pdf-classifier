@@ -1,4 +1,5 @@
 import 'package:app/screens/file_overview_home.dart';
+import 'package:app/screens/pdf_viewer.dart';
 import 'package:app/utils/service_locator.dart';
 import 'package:flutter/material.dart';
 import 'package:app/model/Config.dart';
@@ -27,7 +28,11 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const FileOverviewHomeScreen(title: 'Document Classifier Home'),
+        initialRoute: '/',
+        routes: {
+          '/': (context) => const FileOverviewHomeScreen(),
+          '/pdf': (context) => const PDFViewer(),
+        }
     );
   }
 }

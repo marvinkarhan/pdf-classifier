@@ -7,8 +7,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:http/http.dart' as http;
 
 class PDFViewer extends StatefulWidget {
-  final String id;
-  const PDFViewer({super.key, required this.id});
+  const PDFViewer({super.key});
 
   @override
   State<PDFViewer> createState() => _PDFViewerState();
@@ -16,37 +15,50 @@ class PDFViewer extends StatefulWidget {
 
 class _PDFViewerState extends State<PDFViewer> {
   String pathPDF = "";
+  String id = "";
   final BackendService backendService = sl.get<BackendService>();
-
-  @override
-  void initState() {
-    super.initState();
-    downloadFile();
-  }
 
   Future<void> downloadFile() async {
     backendService
-        .downloadDocumentById(widget.id)
+        .downloadDocumentById(id)
         .then((path) => setState(() => pathPDF = path));
   }
 
   @override
   Widget build(BuildContext context) {
-    if (pathPDF == "") {
-      return Center(child: CircularProgressIndicator());
-    } else {
-      return PDFView(
-        filePath: pathPDF,
-        autoSpacing: true,
-        pageSnap: true,
-        fitEachPage: true,
-        onError: (error) {
-          print(error.toString());
-        },
-        onPageError: (page, error) {
-          print('$page: ${error.toString()}');
-        },
-      );
+    final args = (ModalRoute.of(context)?.settings.arguments ??
+        <String, dynamic>{}) as Map;
+    if (id == "") {
+      id = args['id'];
+      downloadFile();
     }
+
+    return Scaffold(
+      appBar: AppBar(
+          title: const Text("Document Classifier"),
+          centerTitle: true,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: () => Navigator.pop(context),
+          )),
+      body: pathPDF == ""
+          ? const Center(child: CircularProgressIndicator())
+          : createPDFView(),
+    );
+  }
+
+  Widget createPDFView() {
+    return PDFView(
+      filePath: pathPDF,
+      autoSpacing: true,
+      pageSnap: true,
+      fitEachPage: true,
+      onError: (error) {
+        print(error.toString());
+      },
+      onPageError: (page, error) {
+        print('$page: ${error.toString()}');
+      },
+    );
   }
 }

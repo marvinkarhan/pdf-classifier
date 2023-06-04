@@ -9,9 +9,7 @@ import 'package:app/utils/service_locator.dart';
 import 'dart:async';
 
 class FileOverviewHomeScreen extends StatefulWidget {
-  const FileOverviewHomeScreen({super.key, required this.title});
-
-  final String title;
+  const FileOverviewHomeScreen({super.key});
 
   @override
   State<FileOverviewHomeScreen> createState() => _FileOverviewHomeScreenState();
@@ -20,7 +18,6 @@ class FileOverviewHomeScreen extends StatefulWidget {
 class _FileOverviewHomeScreenState extends State<FileOverviewHomeScreen> {
   final List<Document> _overallPickedFiles = [];
   final BackendService backendService = sl.get<BackendService>();
-  String _showFileId = "";
   Timer? _debounce;
 
   @override
@@ -102,16 +99,14 @@ class _FileOverviewHomeScreenState extends State<FileOverviewHomeScreen> {
   }
 
   void _openFile(String id) {
-    setState(() {
-      _showFileId = id;
-    });
+    Navigator.pushNamed(context, '/pdf', arguments: {'id': id});
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.title),
+        title: const Text("Document Classifier"),
         centerTitle: true,
       ),
       body: createBody(),
@@ -124,50 +119,48 @@ class _FileOverviewHomeScreenState extends State<FileOverviewHomeScreen> {
   }
 
   Widget createBody() {
-    return _showFileId != ""
-        ? PDFViewer(id: _showFileId)
-        : Column(
-            children: <Widget>[
-              Padding(
-                padding: const EdgeInsets.fromLTRB(8.0, 15.0, 8.0, 12.0),
-                child: TextField(
-                  onChanged: _onSearchChanged,
-                  decoration: const InputDecoration(
-                    fillColor: Colors.white,
-                    filled: true,
-                    labelText: "Search",
-                    hintText: "Search",
-                    prefixIcon: Icon(Icons.search),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(25.0)),
-                      borderSide: BorderSide(width: 2.0),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(25.0)),
-                      borderSide: BorderSide(width: 3.0, color: Colors.blue),
-                    ),
-                  ),
-                ),
+    return Column(
+      children: <Widget>[
+        Padding(
+          padding: const EdgeInsets.fromLTRB(8.0, 15.0, 8.0, 12.0),
+          child: TextField(
+            onChanged: _onSearchChanged,
+            decoration: const InputDecoration(
+              fillColor: Colors.white,
+              filled: true,
+              labelText: "Search",
+              hintText: "Search",
+              prefixIcon: Icon(Icons.search),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.all(Radius.circular(25.0)),
+                borderSide: BorderSide(width: 2.0),
               ),
-              Expanded(
-                  child: _overallPickedFiles.isEmpty
-                      ? ListView(
-                          children: [
-                            ListTile(
-                              title: const Text("No files added"),
-                              trailing: const Icon(Icons.add),
-                              onTap: pickFiles,
-                            ),
-                          ],
-                        )
-                      : ListView.separated(
-                          itemCount: _overallPickedFiles.length,
-                          itemBuilder: (BuildContext ctxt, int index) =>
-                              _buildDynamicFileList(ctxt, index),
-                          separatorBuilder: (BuildContext ctxt, int index) =>
-                              const Divider())),
-            ],
-          );
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.all(Radius.circular(25.0)),
+                borderSide: BorderSide(width: 3.0, color: Colors.blue),
+              ),
+            ),
+          ),
+        ),
+        Expanded(
+            child: _overallPickedFiles.isEmpty
+                ? ListView(
+                    children: [
+                      ListTile(
+                        title: const Text("No files added"),
+                        trailing: const Icon(Icons.add),
+                        onTap: pickFiles,
+                      ),
+                    ],
+                  )
+                : ListView.separated(
+                    itemCount: _overallPickedFiles.length,
+                    itemBuilder: (BuildContext ctxt, int index) =>
+                        _buildDynamicFileList(ctxt, index),
+                    separatorBuilder: (BuildContext ctxt, int index) =>
+                        const Divider())),
+      ],
+    );
   }
 
   Widget _buildDynamicFileList(BuildContext ctxt, int index) {
