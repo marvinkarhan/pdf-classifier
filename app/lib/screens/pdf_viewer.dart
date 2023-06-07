@@ -2,9 +2,9 @@ import 'dart:io';
 import 'package:app/api/i_backend_service.dart';
 import 'package:app/utils/service_locator.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_pdfview/flutter_pdfview.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:http/http.dart' as http;
+import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 
 class PDFViewer extends StatefulWidget {
   const PDFViewer({super.key});
@@ -43,22 +43,11 @@ class _PDFViewerState extends State<PDFViewer> {
           )),
       body: pathPDF == ""
           ? const Center(child: CircularProgressIndicator())
-          : createPDFView(),
+          : Container(child: createPDFView2()),
     );
   }
 
-  Widget createPDFView() {
-    return PDFView(
-      filePath: pathPDF,
-      autoSpacing: true,
-      pageSnap: true,
-      fitEachPage: true,
-      onError: (error) {
-        print(error.toString());
-      },
-      onPageError: (page, error) {
-        print('$page: ${error.toString()}');
-      },
-    );
+  Widget createPDFView2() {
+    return SfPdfViewer.file(File(pathPDF));
   }
 }
