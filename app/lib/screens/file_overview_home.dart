@@ -21,7 +21,7 @@ class FileOverviewHomeScreen extends StatefulWidget {
 }
 
 class _FileOverviewHomeScreenState extends State<FileOverviewHomeScreen> {
-  final List<Document> _overallPickedFiles = [];
+  final List<Document> _files = [];
   List<Document> _visibleFiles = [];
   final List<Category> _categories = [];
   final BackendService backendService = sl.get<BackendService>();
@@ -29,6 +29,7 @@ class _FileOverviewHomeScreenState extends State<FileOverviewHomeScreen> {
   List<Category> _selectedCategories = [];
   final TextEditingController _createCategoryTextFieldController =
       TextEditingController();
+  bool _searching = false;
 
   @override
   void initState() {
@@ -40,15 +41,17 @@ class _FileOverviewHomeScreenState extends State<FileOverviewHomeScreen> {
 
   void getDocumentsFromBackend([String query = ""]) {
     if (query.isEmpty) {
+      _searching = false;
       backendService.getAllDocuments().then((docs) {
-        _overallPickedFiles.clear();
-        _overallPickedFiles.addAll(docs);
+        _files.clear();
+        _files.addAll(docs);
         setState(() {});
       });
     } else {
+      _searching = true;
       backendService.queryDocumentById(query).then((docs) {
-        _overallPickedFiles.clear();
-        _overallPickedFiles.addAll(docs);
+        _files.clear();
+        _files.addAll(docs);
         setState(() {});
       });
     }
@@ -71,14 +74,14 @@ class _FileOverviewHomeScreenState extends State<FileOverviewHomeScreen> {
         _categories.where((element) => element.parentId == category).toList();
     if (category == "root") {
       // Show all unassigned documents
-      _visibleFiles = _overallPickedFiles
+      _visibleFiles = _files
           .where((file) =>
               !_categories.any((c) => c.fileIds?.contains(file.id) ?? false))
           .toList();
     } else {
       final currentCategory =
           _categories.firstWhere((element) => element.id == category);
-      _visibleFiles = _overallPickedFiles
+      _visibleFiles = _files
           .where((file) => currentCategory.fileIds?.contains(file.id) ?? false)
           .toList();
     }
@@ -167,7 +170,7 @@ class _FileOverviewHomeScreenState extends State<FileOverviewHomeScreen> {
 
   void _onDeleteDocument(String id) {
     setState(() {
-      _overallPickedFiles.removeWhere((element) => element.id == id);
+      _files.removeWhere((element) => element.id == id);
     });
     backendService.deleteResourceById(id);
     getDocumentsFromBackend();
@@ -229,7 +232,7 @@ class _FileOverviewHomeScreenState extends State<FileOverviewHomeScreen> {
           onSearch: getDocumentsFromBackend,
         ),
         Expanded(
-            child: _overallPickedFiles.isEmpty
+            child: _files.isEmpty
                 ? ListView(
                     children: [
                       ListTile(
@@ -239,19 +242,32 @@ class _FileOverviewHomeScreenState extends State<FileOverviewHomeScreen> {
                       ),
                     ],
                   )
-                : ListView.separated(
-                    itemCount: _visibleFiles.length +
-                        _selectedCategories.length +
-                        (_categoryStack.last == "root" ? 0 : 1),
-                    itemBuilder: (BuildContext ctxt, int index) =>
-                        _buildDynamicFileList(ctxt, index),
-                    separatorBuilder: (BuildContext ctxt, int index) =>
-                        const Divider())),
+                : _searching
+                    ? _buildFileList()
+                    : _buildCategoryFileList()),
       ],
     );
   }
 
-  Widget _buildDynamicFileList(BuildContext ctxt, int index) {
+  Widget _buildFileList() {
+    return ListView.separated(
+        itemCount: _files.length,
+        itemBuilder: (BuildContext ctxt, int index) =>
+            _buildFileListTile(_files[index]),
+        separatorBuilder: (BuildContext ctxt, int index) => const Divider());
+  }
+
+  Widget _buildCategoryFileList() {
+    return ListView.separated(
+        itemCount: _visibleFiles.length +
+            _selectedCategories.length +
+            (_categoryStack.last == "root" ? 0 : 1),
+        itemBuilder: (BuildContext ctxt, int index) =>
+            _buildDynamicCategoryFileList(ctxt, index),
+        separatorBuilder: (BuildContext ctxt, int index) => const Divider());
+  }
+
+  Widget _buildDynamicCategoryFileList(BuildContext ctxt, int index) {
     // add row to navigate to parent category
     if (_categoryStack.last != "root") {
       if (index == 0) {
@@ -268,12 +284,11 @@ class _FileOverviewHomeScreenState extends State<FileOverviewHomeScreen> {
     }
     var isCategory = index < _selectedCategories.length;
     return isCategory
-        ? buildCategoryListTile(_selectedCategories[index])
-        : buildFileListTile(
-            _visibleFiles[index - _selectedCategories.length]);
+        ? _buildCategoryListTile(_selectedCategories[index])
+        : _buildFileListTile(_visibleFiles[index - _selectedCategories.length]);
   }
 
-  Widget buildFileListTile(Document file) {
+  Widget _buildFileListTile(Document file) {
     return Slidable(
       key: Key(file.id),
       endActionPane: ActionPane(
@@ -311,7 +326,7 @@ class _FileOverviewHomeScreenState extends State<FileOverviewHomeScreen> {
     );
   }
 
-  Widget buildCategoryListTile(Category category) {
+  Widget _buildCategoryListTile(Category category) {
     return Slidable(
       key: Key(category.id),
       endActionPane: ActionPane(
