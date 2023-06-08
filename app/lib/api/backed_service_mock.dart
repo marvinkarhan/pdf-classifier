@@ -9,9 +9,17 @@ class BackendServiceMock implements BackendService {
   final Document _mockDoc2 = Document(id: "mockId2", title: "mockTitle2", content: "mockContent2", distance: 70, certainty: 59);
   final Document _mockDoc3 = Document(id: "mockId3", title: "mockTitle3", content: "mockContent3", distance: 60, certainty: 49);
   final Category _mockCat1 =
-      Category(id: "mockIdCat1", title: "mockTitle1", parentId: "root");
+      Category(
+      id: "mockIdCat1",
+      title: "mockTitle1",
+      parentId: "root",
+      fileIds: ["mockId1"]);
   final Category _mockCat2 =
-      Category(id: "mockIdCat2", title: "mockTitle1", parentId: "mockIdCat2");
+      Category(
+      id: "mockIdCat2",
+      title: "mockTitle1",
+      parentId: "mockIdCat2",
+      fileIds: ["mockId2"]);
   List<Document> documentsStore = [];
   List<Category> categoriesStore = [];
   void Function(String message)? onError;
