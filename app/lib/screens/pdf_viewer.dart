@@ -43,11 +43,11 @@ class _PDFViewerState extends State<PDFViewer> {
           )),
       body: pathPDF == ""
           ? const Center(child: CircularProgressIndicator())
-          : Container(child: createPDFView2()),
+          : Container(child: createPDFView()),
     );
   }
 
-  Widget createPDFView2() {
+  Widget createPDFView() {
     return SfPdfViewer.file(File(pathPDF));
   }
 }

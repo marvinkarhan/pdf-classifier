@@ -16,7 +16,7 @@ document_schema = {
         {
             "name": "title",
             "description": "Title of the document",
-            "dataType": ["string"],
+            "dataType": ["text"],
         },
         {
             "name": "content",
@@ -44,13 +44,18 @@ category_schema = {
         {
             "name": "title",
             "description": "Title of the Category",
-            "dataType": ["string"],
+            "dataType": ["text"],
         },
         {
             "name": "parentId",
-            "description": "File data as byte array",
-            "dataType": ["string"],
+            "description": "Id of the parent category",
+            "dataType": ["text"],
         },
+        {
+            "name": "fileIds",
+            "description": "Files assigned to the category by id",
+            "dataType": ["text[]"],
+        }
     ],
 }
 
@@ -92,7 +97,6 @@ def near_text(query, collection_name):
   db = get_db()
   nearText = {
     "concepts": [query],
-    "distance": 0.7,
   }
   properties = [
     "title", "content",
@@ -103,7 +107,6 @@ def near_text(query, collection_name):
     .get(collection_name, properties)
     .with_near_text(nearText)
     .with_additional("id")
-    .with_limit(20)
     .do()
   )["data"]["Get"][collection_name]
   return query_result

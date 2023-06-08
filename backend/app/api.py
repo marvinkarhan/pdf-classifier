@@ -1,10 +1,9 @@
 import base64
-import functools
 import io
 
 import pypdf
 import tabula
-from flask import Blueprint, request, send_file
+from flask import Blueprint, request, send_file, jsonify
 from werkzeug.datastructures import FileStorage
 
 from .db import get_db, near_text
@@ -33,13 +32,14 @@ def create_document():
     db = get_db()
     try:
         file = request.files["file"]
-        id = ""
+        ids = []
         with db.batch as batch:
             file_dict = read_pdf(file)
             file.seek(0)
             file_dict["data"] = base64.b64encode(file.read()).decode("utf-8")
-            id = batch.add_data_object(file_dict, "Document")
-        return id, 201
+            ids.append(batch.add_data_object(file_dict, "Document"))
+        assign_documents_to_categories("root")
+        return jsonify(ids), 201
     except Exception as e:
         return f"Cloud not save the document: {e}", 400
 
@@ -67,15 +67,18 @@ def delete_resource(id: str):
     db = get_db()
     try:
         # check if the resource is a category
-        result = (
-            db.query.get("Category", ["title"])
+        category = (
+            db.query.get("Category", ["title", "parentId"])
             .with_where({"path": ["id"], "operator": "Equal", "valueString": id})
             .do()["data"]["Get"]["Category"]
         )
-        if result:
+        if category:
             # also delete all children of the category recursively
             delete_category_children(id)
         db.data_object.delete(id)
+        if category:
+            # reassign all documents
+            assign_documents_to_categories(category[0]["parentId"])
         return "Deleted successfully", 200
     except Exception as e:
         return f"Cloud not delete the resource: {e}", 400
@@ -86,7 +89,7 @@ def delete_category_children(id: str):
         # get all children of the category
         result = (
             db.query.get("Category", ["title"])
-            .with_where({"path": ["parentId"], "operator": "Equal", "valueString": id})
+            .with_where({"path": ["parentId"], "operator": "Equal", "valueText": id})
             .with_additional("id")
             .do()["data"]["Get"]["Category"]
         )
@@ -141,7 +144,7 @@ def get_document(id: str):
 def categories():
     db = get_db()
     result = (
-        db.query.get("Category", ["title", "parentId"])
+        db.query.get("Category", ["title", "parentId", "fileIds"])
         .with_additional("id")
         .do()["data"]["Get"]["Category"]
     )
@@ -157,7 +160,6 @@ def create_category():
     db = get_db()
     try:
         category = request.json
-        print(category)
         if not category["title"]:
             return f"Cloud not create the category: no title provided", 400
         if not "parentId" in category or not category["parentId"] or category["parentId"] == "root":
@@ -178,8 +180,8 @@ def create_category():
                 {
                     "operator": "And",
                     "operands": [
-                        {"path": ["title"], "operator": "Equal", "valueString": category["title"]},
-                        {"path": ["title"], "operator": "Equal", "valueString": category["title"]}
+                        {"path": ["title"], "operator": "Equal", "valueText": category["title"]},
+                        {"path": ["title"], "operator": "Equal", "valueText": category["title"]}
                     ],
                 }
             )
@@ -189,7 +191,106 @@ def create_category():
             return f"Category already exists", 400
 
         id = db.data_object.create(category, "Category")
+        assign_documents_to_categories(id)
         return id, 201
     except Exception as e:
         return f"Cloud not create the category: {e}", 400
 
+def assign_documents_to_categories(category_id: str):
+    db = get_db()
+    # get category
+    if category_id == "root":
+        category = {"parentId": "root"}
+    else:
+        category = (
+            db.query.get("Category", ["parentId"])
+            .with_where({"path": ["id"], "operator": "Equal", "valueString": category_id})
+            .do()["data"]["Get"]["Category"]
+        )
+        if not category:
+            return
+        category = category[0]
+    # get parent
+    if category["parentId"] == "root":
+        parent = {"id": "root"}
+    else:
+        parent = (
+            db.query.get("Category", ["title", "parentId"])
+            .with_additional("id")
+            .with_where({"path": ["id"], "operator": "Equal", "valueString": category["parentId"]})
+            .do()["data"]["Get"]["Category"]
+        )
+        parent = flatten_id_prop(parent[0])
+        if not parent:
+            return
+    # get all categories that are in the subtree of the category's parent
+    subtree = get_flat_subtree(parent)
+    # filter root category
+    subtree = [category for category in subtree if category["id"] != "root"]
+    # get all documents assigned to the parent and the neighboring categories
+    if category["parentId"] == "root":
+        documents = (
+            db.query.get("Document", ["title"])
+            .with_additional("id")
+            .do()["data"]["Get"]["Document"]
+        )
+        file_ids = [document["_additional"]["id"] for document in documents]
+    else:
+        file_ids = [file_id for dict in subtree for file_id in dict["fileIds"]]
+    # assign documents to the category level by level
+    assign_documents_to_categories_helper(subtree, category["parentId"], file_ids)
+
+def assign_documents_to_categories_helper(categories, category_level, file_ids):
+    current_categories = [category for category in categories if category["parentId"] == category_level]
+
+    # get all document certainties for each category
+    documents_per_category = {category['id']: near_text(category["title"], "Document") for category in current_categories}
+    # prepare dictionary for assigning documents to categories and a list for all unassigned documents
+    category_dict = {category['id']: [] for category in current_categories}
+    unassigned = []
+    for file_id in file_ids:
+        highest_certainty = 0
+        closest_category = None
+        for category, distances in documents_per_category.items():
+            result = next((d for d in distances if d["_additional"]["id"] == file_id), None)
+            if result and result["_additional"]["certainty"] > highest_certainty:
+                highest_certainty = result["_additional"]["certainty"]
+                closest_category = category
+        # assign document to current category level if blow threshold
+        if highest_certainty < 0.8 or not closest_category:
+            unassigned.append(file_id)
+        else:
+            category_dict[closest_category].append(file_id)
+
+    # save documents on current level
+    db = get_db()
+    if unassigned and category_level != "root":
+        db.data_object.update({"fileIds": unassigned}, "Category", category_level)
+    # repeat for each child category
+    for category_id, file_ids_per_category in category_dict.items():
+        current_category = next((c for c in current_categories if c["id"] == category_id), None)
+        if current_category:
+            assign_documents_to_categories_helper(categories, current_category["id"], file_ids_per_category)
+
+def get_flat_subtree(category):
+    db = get_db()
+    result = [category]
+    # get children of the category
+    children = (
+        db.query.get("Category", ["title", "parentId"])
+        .with_additional("id")
+        .with_where({"path": ["parentId"], "operator": "Equal", "valueText": category["id"]})
+        .do()["data"]["Get"]["Category"]
+    )
+    if not children:
+        return result
+    children = [flatten_id_prop(child) for child in children]
+    # get all children of children
+    for child in children:
+        result = result + get_flat_subtree(child)
+    return result
+    
+def flatten_id_prop(dict):
+    dict["id"] = dict["_additional"]["id"]
+    del dict["_additional"]
+    return dict

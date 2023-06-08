@@ -22,9 +22,10 @@ class FileOverviewHomeScreen extends StatefulWidget {
 
 class _FileOverviewHomeScreenState extends State<FileOverviewHomeScreen> {
   final List<Document> _overallPickedFiles = [];
+  List<Document> _visibleFiles = [];
   final List<Category> _categories = [];
   final BackendService backendService = sl.get<BackendService>();
-  List<String> _categoryStack = ["root"];
+  final List<String> _categoryStack = ["root"];
   List<Category> _selectedCategories = [];
   final TextEditingController _createCategoryTextFieldController =
       TextEditingController();
@@ -66,9 +67,22 @@ class _FileOverviewHomeScreenState extends State<FileOverviewHomeScreen> {
     if (_categoryStack.last != category) {
       _categoryStack.add(category);
     }
-    _selectedCategories = _categories
-        .where((element) => element.parentId == _categoryStack.last)
-        .toList();
+    _selectedCategories =
+        _categories.where((element) => element.parentId == category).toList();
+    if (category == "root") {
+      // Show all unassigned documents
+      _visibleFiles = _overallPickedFiles
+          .where((file) =>
+              !_categories.any((c) => c.fileIds?.contains(file.id) ?? false))
+          .toList();
+    } else {
+      final currentCategory =
+          _categories.firstWhere((element) => element.id == category);
+      _visibleFiles = _overallPickedFiles
+          .where((file) => currentCategory.fileIds?.contains(file.id) ?? false)
+          .toList();
+    }
+
     setState(() {});
   }
 
@@ -226,7 +240,7 @@ class _FileOverviewHomeScreenState extends State<FileOverviewHomeScreen> {
                     ],
                   )
                 : ListView.separated(
-                    itemCount: _overallPickedFiles.length +
+                    itemCount: _visibleFiles.length +
                         _selectedCategories.length +
                         (_categoryStack.last == "root" ? 0 : 1),
                     itemBuilder: (BuildContext ctxt, int index) =>
@@ -256,7 +270,7 @@ class _FileOverviewHomeScreenState extends State<FileOverviewHomeScreen> {
     return isCategory
         ? buildCategoryListTile(_selectedCategories[index])
         : buildFileListTile(
-            _overallPickedFiles[index - _selectedCategories.length]);
+            _visibleFiles[index - _selectedCategories.length]);
   }
 
   Widget buildFileListTile(Document file) {
