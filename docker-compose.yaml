@@ -19,3 +19,11 @@ services:
       DEFAULT_VECTORIZER_MODULE: 'text2vec-openai'
       ENABLE_MODULES: 'text2vec-openai,qna-openai'
       CLUSTER_HOSTNAME: 'node1'
+  backend:
+    build:
+      context: ./backend
+    ports:
+      - "5000:5000"
+    environment:
+      WEAVIATE_URL: http://weaviate:8080
+      OPEN_AI_API_KEY: "${OPEN_AI_API_KEY}"

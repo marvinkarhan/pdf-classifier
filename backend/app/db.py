@@ -62,8 +62,9 @@ category_schema = {
 def get_db() -> weaviate.Client:
     if "db" not in g:
         open_ai_api_key = os.getenv("OPEN_AI_API_KEY")
+        weaviate_url = os.getenv("WEAVIATE_URL", "http://localhost:8080")
         g.db = weaviate.Client(
-            "http://localhost:8080",
+            weaviate_url,
             additional_headers={"X-OpenAI-API-Key": open_ai_api_key},
         )
 
