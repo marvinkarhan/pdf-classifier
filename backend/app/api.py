@@ -158,43 +158,43 @@ def categories():
 @bp.route("/category", methods=["POST"])
 def create_category():
     db = get_db()
-    try:
-        category = request.json
-        if not category["title"]:
-            return f"Cloud not create the category: no title provided", 400
-        if not "parentId" in category or not category["parentId"] or category["parentId"] == "root":
-            category["parentId"] = "root"
-        else:
-            # check if the parent category exists
-            result = (
-                db.query.get("Category", ["title"])
-                .with_where({"path": ["id"], "operator": "Equal", "valueString": category["parentId"]})
-                .do()["data"]["Get"]["Category"]
-            )
-            if not result:
-                return f"Parent category does not exist", 400
-        # check if a category exists with the same name and parentId
+    # try:
+    category = request.json
+    if not category["title"]:
+        return f"Cloud not create the category: no title provided", 400
+    if not "parentId" in category or not category["parentId"] or category["parentId"] == "root":
+        category["parentId"] = "root"
+    else:
+        # check if the parent category exists
         result = (
             db.query.get("Category", ["title"])
-            .with_where(
-                {
-                    "operator": "And",
-                    "operands": [
-                        {"path": ["title"], "operator": "Equal", "valueText": category["title"]},
-                        {"path": ["title"], "operator": "Equal", "valueText": category["title"]}
-                    ],
-                }
-            )
+            .with_where({"path": ["id"], "operator": "Equal", "valueString": category["parentId"]})
             .do()["data"]["Get"]["Category"]
         )
-        if result:
-            return f"Category already exists", 400
+        if not result:
+            return f"Parent category does not exist", 400
+    # check if a category exists with the same name and parentId
+    result = (
+        db.query.get("Category", ["title"])
+        .with_where(
+            {
+                "operator": "And",
+                "operands": [
+                    {"path": ["title"], "operator": "Equal", "valueText": category["title"]},
+                    {"path": ["title"], "operator": "Equal", "valueText": category["title"]}
+                ],
+            }
+        )
+        .do()["data"]["Get"]["Category"]
+    )
+    if result:
+        return f"Category already exists", 400
 
-        id = db.data_object.create(category, "Category")
-        assign_documents_to_categories(id)
-        return id, 201
-    except Exception as e:
-        return f"Cloud not create the category: {e}", 400
+    id = db.data_object.create(category, "Category")
+    assign_documents_to_categories(id)
+    return id, 201
+    # except Exception as e:
+    #     return f"Cloud not create the category: {e}", 400
 
 def assign_documents_to_categories(category_id: str):
     db = get_db()
@@ -236,7 +236,7 @@ def assign_documents_to_categories(category_id: str):
         )
         file_ids = [document["_additional"]["id"] for document in documents]
     else:
-        file_ids = [file_id for dict in subtree for file_id in dict["fileIds"]]
+        file_ids = [file_id for dict in subtree for file_id in dict.get("fileIds", [])]
     # assign documents to the category level by level
     assign_documents_to_categories_helper(subtree, category["parentId"], file_ids)
 
@@ -264,8 +264,12 @@ def assign_documents_to_categories_helper(categories, category_level, file_ids):
 
     # save documents on current level
     db = get_db()
-    if unassigned and category_level != "root":
-        db.data_object.update({"fileIds": unassigned}, "Category", category_level)
+    if category_level != "root":
+        if unassigned:
+            db.data_object.update({"fileIds": unassigned}, "Category", category_level)
+        else:
+            db.data_object.update({"fileIds": None}, "Category", category_level)
+
     # repeat for each child category
     for category_id, file_ids_per_category in category_dict.items():
         current_category = next((c for c in current_categories if c["id"] == category_id), None)

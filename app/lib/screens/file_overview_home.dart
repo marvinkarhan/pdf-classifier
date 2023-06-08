@@ -34,9 +34,13 @@ class _FileOverviewHomeScreenState extends State<FileOverviewHomeScreen> {
   @override
   void initState() {
     super.initState();
+    reload();
+    backendService.setOnError(_showErrorMessage);
+  }
+
+  void reload() {
     getDocumentsFromBackend();
     getCategoriesFromBackend();
-    backendService.setOnError(_showErrorMessage);
   }
 
   void getDocumentsFromBackend([String query = ""]) {
@@ -102,7 +106,7 @@ class _FileOverviewHomeScreenState extends State<FileOverviewHomeScreen> {
     for (var file in pickedFiles.files) {
       backendService.postDocument(file).then((value) {
         if (value) {
-          getDocumentsFromBackend();
+          reload();
         }
       });
     }
@@ -172,16 +176,16 @@ class _FileOverviewHomeScreenState extends State<FileOverviewHomeScreen> {
     setState(() {
       _files.removeWhere((element) => element.id == id);
     });
-    backendService.deleteResourceById(id);
-    getDocumentsFromBackend();
+    backendService.deleteResourceById(id).then((value) => reload());
   }
 
   void _onDeleteCategory(String id) {
     setState(() {
       _categories.removeWhere((element) => element.id == id);
     });
-    backendService.deleteResourceById(id);
-    getCategoriesFromBackend();
+    backendService
+        .deleteResourceById(id)
+        .then((value) => getCategoriesFromBackend());
   }
 
   void _openFile(String id) {

@@ -67,7 +67,7 @@ class BackendServiceImpl implements BackendService {
 
   @override
   Future<bool> deleteResourceById(String id) async {
-    log("Deleting file $id");
+    log("Deleting resource $id");
     var res = await http.get(Uri.parse(
         "$backendUri${BackendServiceImpl.deleteResourceByIdUri}/$id"));
     if (res.statusCode != 201 && res.statusCode != 200) {
