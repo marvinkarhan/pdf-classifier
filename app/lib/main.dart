@@ -1,10 +1,13 @@
+import 'dart:developer';
+
 import 'package:app/screens/file_overview_home.dart';
 import 'package:app/screens/pdf_viewer.dart';
 import 'package:app/utils/service_locator.dart';
 import 'package:flutter/material.dart';
 import 'package:app/model/Config.dart';
 
-void main({String? env}) async {
+void main(List<String> args) async {
+  const env = String.fromEnvironment('env');
   WidgetsFlutterBinding.ensureInitialized();
   await setup(env);
   runApp(const MyApp());
@@ -24,15 +27,14 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Document Classifier',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
+        title: 'Document Classifier',
+        theme: ThemeData(
+          primarySwatch: Colors.blue,
+        ),
         initialRoute: '/',
         routes: {
           '/': (context) => const FileOverviewHomeScreen(),
           '/pdf': (context) => const PDFViewer(),
-        }
-    );
+        });
   }
 }

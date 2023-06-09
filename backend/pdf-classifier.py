@@ -1,5 +1,4 @@
 import pypdf
-import tabula
 import os
 from dotenv import load_dotenv
 import weaviate
@@ -80,12 +79,6 @@ with client.batch as batch:
         page = pdf_reader.pages[page_num]
         text += page.extract_text()
 
-    # Read the PDF file and extract the tables
-    tables = tabula.read_pdf(file, pages='all')
-
-    # Print the contents of each table
-    for table_num, table in enumerate(tables):
-      text += table.to_string()
     file_dict = {
       "title": file,
       "content": text

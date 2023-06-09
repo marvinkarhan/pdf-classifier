@@ -9,9 +9,8 @@ services:
     - --scheme
     - http
     image: semitechnologies/weaviate:1.18.3
-    ports:
-    - 8080:8080
-    restart: on-failure:0
+    volumes:
+      - weaviate_data:/data
     environment:
       QUERY_DEFAULTS_LIMIT: 25
       AUTHENTICATION_ANONYMOUS_ACCESS_ENABLED: 'true'
@@ -20,10 +19,12 @@ services:
       ENABLE_MODULES: 'text2vec-openai,qna-openai'
       CLUSTER_HOSTNAME: 'node1'
   backend:
-    build:
-      context: ./backend
+    image: marvinkarhan/cpd:latest
+    x-aws-pull_credentials: arn:aws:secretsmanager:eu-central-1:451753274529:secret:dockerhubAccessToken-LoFLqv
     ports:
       - "5000:5000"
     environment:
       WEAVIATE_URL: http://weaviate:8080
       OPEN_AI_API_KEY: "${OPEN_AI_API_KEY}"
+volumes:
+  weaviate_data:

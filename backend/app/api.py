@@ -2,7 +2,6 @@ import base64
 import io
 
 import pypdf
-import tabula
 from flask import Blueprint, request, send_file, jsonify
 from werkzeug.datastructures import FileStorage
 
@@ -52,11 +51,6 @@ def read_pdf(file: FileStorage) -> dict[str, any]:
     for page_num in range(len(pdf_reader.pages)):
         page = pdf_reader.pages[page_num]
         text += page.extract_text()
-
-    # Read the PDF file and extract the tables
-    tables = tabula.read_pdf(file.stream, pages="all")
-    for table in tables:
-        text += table.to_string()
 
     file_dict = {"title": file.filename, "content": text}
     return file_dict
