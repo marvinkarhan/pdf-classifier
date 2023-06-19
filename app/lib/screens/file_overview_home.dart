@@ -5,6 +5,7 @@ import 'package:app/model/Category.dart';
 import 'package:app/model/Document.dart';
 import 'package:app/screens/pdf_viewer.dart';
 import 'package:app/widgets/category_list_tile_widget.dart';
+import 'package:app/widgets/file_category_speed_dial_widget.dart';
 import 'package:app/widgets/search_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
@@ -206,32 +207,8 @@ class _FileOverviewHomeScreenState extends State<FileOverviewHomeScreen> {
         centerTitle: true,
       ),
       body: createBody(),
-      floatingActionButton: SpeedDial(
-        icon: Icons.add,
-        backgroundColor: Colors.blue,
-        visible: true,
-        spacing: 8,
-        children: [
-          SpeedDialChild(
-            child: const Icon(Icons.picture_as_pdf, color: Colors.blue),
-            backgroundColor: Colors.white,
-            onTap: pickFiles,
-            label: 'Add files',
-            labelStyle: const TextStyle(
-                fontWeight: FontWeight.w500, color: Colors.blue),
-            labelBackgroundColor: Colors.white,
-          ),
-          SpeedDialChild(
-              child: const Icon(Icons.create_new_folder, color: Colors.blue),
-              backgroundColor: Colors.white,
-              onTap: _showCreateCategoryDialog,
-              label: 'Create a category',
-              labelStyle: const TextStyle(
-                  fontWeight: FontWeight.w500, color: Colors.blue),
-              labelBackgroundColor: Colors.white,
-              key: const Key("createCatBtn")),
-        ],
-      ),
+      floatingActionButton: FileCategorySpeedDial(
+          onPickFiles: pickFiles, onCreateCategory: _showCreateCategoryDialog),
     );
   }
 
