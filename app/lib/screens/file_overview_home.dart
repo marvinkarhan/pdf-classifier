@@ -15,6 +15,7 @@ import 'package:get_it/get_it.dart';
 import 'package:app/utils/service_locator.dart';
 import 'dart:async';
 
+import '../widgets/create_category_dialog_widget.dart';
 import '../widgets/file_list_tile_widget.dart';
 
 class FileOverviewHomeScreen extends StatefulWidget {
@@ -142,40 +143,9 @@ class _FileOverviewHomeScreenState extends State<FileOverviewHomeScreen> {
   Future<void> _showCreateCategoryDialog() {
     return showDialog(
       context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text('Create a category'),
-          key: const Key("createCatDialog"),
-          content: TextField(
-            key: const Key("newCatTitleTextField"),
-            controller: _createCategoryTextFieldController,
-            decoration: const InputDecoration(hintText: "Category title"),
-            autofocus: true,
-          ),
-          actions: <Widget>[
-            OutlinedButton(
-              child: const Text('cancel'),
-              onPressed: () {
-                _createCategoryTextFieldController.clear();
-                Navigator.pop(context);
-              },
-            ),
-            OutlinedButton(
-              key: const Key("createCatSaveBtn"),
-              style: ButtonStyle(
-                foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
-                backgroundColor: MaterialStateProperty.all<Color>(Colors.blue),
-              ),
-              child: const Text('create'),
-              onPressed: () {
-                createCategory(_createCategoryTextFieldController.text);
-                _createCategoryTextFieldController.clear();
-                Navigator.pop(context);
-              },
-            ),
-          ],
-        );
-      },
+      builder: (context) => CreateCategoryDialog(
+        onCreateCategory: createCategory,
+      ),
     );
   }
 
