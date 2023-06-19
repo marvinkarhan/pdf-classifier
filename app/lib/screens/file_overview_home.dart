@@ -13,6 +13,8 @@ import 'package:get_it/get_it.dart';
 import 'package:app/utils/service_locator.dart';
 import 'dart:async';
 
+import '../widgets/file_list_tile_widget.dart';
+
 class FileOverviewHomeScreen extends StatefulWidget {
   const FileOverviewHomeScreen({super.key});
 
@@ -219,15 +221,14 @@ class _FileOverviewHomeScreenState extends State<FileOverviewHomeScreen> {
             labelBackgroundColor: Colors.white,
           ),
           SpeedDialChild(
-            child: const Icon(Icons.create_new_folder, color: Colors.blue),
-            backgroundColor: Colors.white,
-            onTap: _showCreateCategoryDialog,
-            label: 'Create a category',
-            labelStyle: const TextStyle(
-                fontWeight: FontWeight.w500, color: Colors.blue),
-            labelBackgroundColor: Colors.white,
-            key: const Key("createCatBtn")
-          ),
+              child: const Icon(Icons.create_new_folder, color: Colors.blue),
+              backgroundColor: Colors.white,
+              onTap: _showCreateCategoryDialog,
+              label: 'Create a category',
+              labelStyle: const TextStyle(
+                  fontWeight: FontWeight.w500, color: Colors.blue),
+              labelBackgroundColor: Colors.white,
+              key: const Key("createCatBtn")),
         ],
       ),
     );
@@ -260,8 +261,10 @@ class _FileOverviewHomeScreenState extends State<FileOverviewHomeScreen> {
   Widget _buildFileList() {
     return ListView.separated(
         itemCount: _files.length,
-        itemBuilder: (BuildContext ctxt, int index) =>
-            _buildFileListTile(_files[index]),
+        itemBuilder: (BuildContext ctxt, int index) => FileListTile(
+            file: _files[index],
+            onFileDelete: () => _onDeleteDocument(_files[index].id),
+            onFileOpen: () => _openFile(_files[index].id)),
         separatorBuilder: (BuildContext ctxt, int index) => const Divider());
   }
 
@@ -291,48 +294,15 @@ class _FileOverviewHomeScreenState extends State<FileOverviewHomeScreen> {
       index -= 1;
     }
     var isCategory = index < _selectedCategories.length;
-    return isCategory
-        ? _buildCategoryListTile(_selectedCategories[index])
-        : _buildFileListTile(_visibleFiles[index - _selectedCategories.length]);
-  }
-
-  Widget _buildFileListTile(Document file) {
-    return Slidable(
-      key: Key(file.id),
-      endActionPane: ActionPane(
-        motion: const ScrollMotion(),
-        extentRatio: 0.2,
-        children: [
-          SlidableAction(
-            onPressed: (context) {
-              _onDeleteDocument(file.id);
-
-              ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('File: ${file.title} deleted')));
-            },
-            backgroundColor: Colors.red,
-            foregroundColor: Colors.white,
-            icon: Icons.delete,
-            label: 'Delete',
-            key: Key("delFileBtn_${file.id}"),
-          ),
-        ],
-      ),
-      child: ListTile(
-        leading: file.certainty != null
-            ? CircleAvatar(
-                backgroundColor:
-                    Color.lerp(Colors.red, Colors.green, file.certainty!),
-                child: Text(
-                  '${(file.certainty! * 100).toStringAsFixed(0)}%',
-                  style: const TextStyle(color: Colors.white),
-                ),
-              )
-            : const Icon(Icons.picture_as_pdf),
-        title: Text(file.title),
-        onTap: () => _openFile(file.id),
-      ),
-    );
+    if (isCategory) {
+      return _buildCategoryListTile(_selectedCategories[index]);
+    } else {
+      var file = _visibleFiles[index - _selectedCategories.length];
+      return FileListTile(
+          file: file,
+          onFileDelete: () => _onDeleteDocument(file.id),
+          onFileOpen: () => _openFile(file.id));
+    }
   }
 
   Widget _buildCategoryListTile(Category category) {
