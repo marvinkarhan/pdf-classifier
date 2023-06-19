@@ -5,9 +5,9 @@ import 'package:app/model/Document.dart';
 import 'package:file_picker/file_picker.dart';
 
 class BackendServiceMock implements BackendService {
-  final Document _mockDoc1 = Document(id: "mockId1", title: "mockTitle1", content: "mockContent1", distance: 80, certainty: 69);
-  final Document _mockDoc2 = Document(id: "mockId2", title: "mockTitle2", content: "mockContent2", distance: 70, certainty: 59);
-  final Document _mockDoc3 = Document(id: "mockId3", title: "mockTitle3", content: "mockContent3", distance: 60, certainty: 49);
+  final Document _mockDoc1 = Document(id: "mockId1", title: "mockTitle1", content: "mockContent1", distance: 0.80, certainty: 0.69);
+  final Document _mockDoc2 = Document(id: "mockId2", title: "mockTitle2", content: "mockContent2", distance: 0.70, certainty: 0.59);
+  final Document _mockDoc3 = Document(id: "mockId3", title: "mockTitle3", content: "mockContent3", distance: 0.60, certainty: 0.49);
   final Category _mockCat1 =
       Category(
       id: "mockIdCat1",
@@ -69,8 +69,8 @@ class BackendServiceMock implements BackendService {
     List<Document> mockDocuments = [];
     mockDocuments = await getAllDocuments();
     for (var element in mockDocuments) {
-      element.distance = element.distance! - 10;
-      element.certainty = element.certainty! - 10;
+      element.distance = element.distance! - 0.1;
+      element.certainty = element.certainty! - 0.1;
     }
     return mockDocuments;
   }

@@ -4,6 +4,7 @@ import 'package:app/model/Document.dart';
 
 import 'package:app/utils/service_locator.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:app/main.dart';
@@ -18,8 +19,8 @@ void main() {
     await tester.pumpWidget(const MyApp());
     await tester.pumpAndSettle();
     expect(find.text("Document Classifier"), findsOneWidget);
-    // Check if received and rendered three mock documents
-    expect(find.byType(ListTile), findsNWidgets(3));
+    // Check if received and rendered the two categories
+    expect(find.byType(ListTile), findsNWidgets(2));
     // Check if the add file button is there
     expect(find.byType(FloatingActionButton), findsOneWidget);
     // CHeck if text search field is there
@@ -30,7 +31,7 @@ void main() {
     Iterable<ListTile> listWidgets = tester.widgetList(find.byType(ListTile));
     expect(listWidgets.length, 3);
     // Check if we have gotten and displayed the queried documents
-    final distanceResults = ["70%", "60%", "50%"];
+    final certaintyResults = ["59%", "49%", "39%"];
     var i = 0;
     for (var element in listWidgets) {
       final circleAvatarFinder = find.descendant(
@@ -46,11 +47,11 @@ void main() {
       final Text textWidget = tester.widget(textFinder);
 
       final String certainty = textWidget.data ?? "";
-      expect(certainty, distanceResults[i]);
+      expect(certainty, certaintyResults[i]);
       i++;
     }
     // Test deletion of document from the view
-    await tester.tap(find.byKey(const Key("delBtn_mockId1")));
+    await tester.tap(find.byKey(const Key("delFileBtn_mockId1")));
     await tester.pumpAndSettle();
     expect(find.byType(ListTile), findsNWidgets(2));
   });

@@ -101,8 +101,12 @@ class BackendServiceImpl implements BackendService {
       return checkFile.path;
     }
     log("Downloading document $id");
+    Map<String, String> headers = {
+      "Connection": "Keep-Alive",
+      "Keep-Alive": "timeout=10"
+    };
     final res = await http.get(Uri.parse(
-        "$backendUri${BackendServiceImpl.downloadDocumentByIdUri}/$id"));
+        "$backendUri${BackendServiceImpl.downloadDocumentByIdUri}/$id"), headers: headers);
     if (res.statusCode != 201 && res.statusCode != 200) {
       onError?.call("Error during document fetch, cannot query documents");
       return "";
