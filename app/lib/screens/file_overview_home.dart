@@ -4,6 +4,7 @@ import 'package:app/api/i_backend_service.dart';
 import 'package:app/model/Category.dart';
 import 'package:app/model/Document.dart';
 import 'package:app/screens/pdf_viewer.dart';
+import 'package:app/widgets/category_list_tile_widget.dart';
 import 'package:app/widgets/search_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
@@ -295,7 +296,11 @@ class _FileOverviewHomeScreenState extends State<FileOverviewHomeScreen> {
     }
     var isCategory = index < _selectedCategories.length;
     if (isCategory) {
-      return _buildCategoryListTile(_selectedCategories[index]);
+      var category = _selectedCategories[index];
+      return CategoryListTile(
+          category: category,
+          onCategoryDelete: () => _onDeleteCategory(category.id),
+          onCategorySelect: () => setSelectedCategory(category.id));
     } else {
       var file = _visibleFiles[index - _selectedCategories.length];
       return FileListTile(
@@ -303,36 +308,5 @@ class _FileOverviewHomeScreenState extends State<FileOverviewHomeScreen> {
           onFileDelete: () => _onDeleteDocument(file.id),
           onFileOpen: () => _openFile(file.id));
     }
-  }
-
-  Widget _buildCategoryListTile(Category category) {
-    return Slidable(
-      key: Key(category.id),
-      endActionPane: ActionPane(
-        motion: const ScrollMotion(),
-        extentRatio: 0.2,
-        children: [
-          SlidableAction(
-            onPressed: (context) {
-              _onDeleteCategory(category.id);
-
-              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                  content: Text('Category: ${category.title} deleted')));
-            },
-            backgroundColor: Colors.red,
-            foregroundColor: Colors.white,
-            icon: Icons.delete,
-            label: 'Delete',
-            key: Key("delCatBtn_${category.id}"),
-          ),
-        ],
-      ),
-      child: ListTile(
-        leading: const Icon(Icons.folder),
-        title: Text(category.title),
-        trailing: const Icon(Icons.navigate_next),
-        onTap: () => setSelectedCategory(category.id),
-      ),
-    );
   }
 }
