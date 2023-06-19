@@ -1,14 +1,8 @@
-import 'dart:math';
-
-import 'package:app/model/Document.dart';
-
+import 'package:app/main.dart';
 import 'package:app/utils/service_locator.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:flutter_test/flutter_test.dart';
-
-import 'package:app/main.dart';
 
 void main() {
   setUpAll(() {
@@ -36,8 +30,8 @@ void main() {
     await tester.enterText(find.byKey(const Key("newCatTitleTextField")), "newMockCatTitle");
     await tester.tap(find.byKey(const Key("createCatSaveBtn")));
     await tester.pumpAndSettle();
-    expect(find.byType(ListTile), findsNWidgets(3), reason: "An additional category should be visible");
-    Iterable<ListTile> listWid5gets = tester.widgetList(find.byType(ListTile));
+    expect(find.byType(ListTile), findsNWidgets(3),
+        reason: "An additional category should be visible");
 
     // Test deletion of the new category from the view
     await tester.drag(find.byKey(const Key("mockIdCat3")), const Offset(-500, 0));

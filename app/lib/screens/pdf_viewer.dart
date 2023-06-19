@@ -1,9 +1,8 @@
 import 'dart:io';
+
 import 'package:app/api/i_backend_service.dart';
 import 'package:app/utils/service_locator.dart';
 import 'package:flutter/material.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:http/http.dart' as http;
 import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 
 class PDFViewer extends StatefulWidget {

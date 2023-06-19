@@ -1,10 +1,8 @@
-import 'dart:developer';
-
+import 'package:app/model/config.dart';
 import 'package:app/screens/file_overview_home.dart';
 import 'package:app/screens/pdf_viewer.dart';
 import 'package:app/utils/service_locator.dart';
 import 'package:flutter/material.dart';
-import 'package:app/model/Config.dart';
 
 void main(List<String> args) async {
   const env = String.fromEnvironment('env');

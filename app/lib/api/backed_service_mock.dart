@@ -1,7 +1,7 @@
 
 import 'package:app/api/i_backend_service.dart';
-import 'package:app/model/Category.dart';
-import 'package:app/model/Document.dart';
+import 'package:app/model/category.dart';
+import 'package:app/model/document.dart';
 import 'package:file_picker/file_picker.dart';
 
 class BackendServiceMock implements BackendService {

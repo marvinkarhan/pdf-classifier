@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:app/model/Category.dart';
+import 'package:app/model/category.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 
 class CategoryListTile extends StatelessWidget {

@@ -3,9 +3,9 @@ import 'dart:developer';
 import 'dart:io';
 
 import 'package:app/api/i_backend_service.dart';
-import 'package:app/model/Category.dart';
-import 'package:app/model/Config.dart';
-import 'package:app/model/Document.dart';
+import 'package:app/model/category.dart';
+import 'package:app/model/config.dart';
+import 'package:app/model/document.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';

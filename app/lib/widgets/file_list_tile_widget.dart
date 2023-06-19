@@ -1,4 +1,4 @@
-import 'package:app/model/Document.dart';
+import 'package:app/model/document.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 

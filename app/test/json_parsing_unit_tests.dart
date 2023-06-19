@@ -1,7 +1,7 @@
 import 'dart:convert';
 
-import 'package:app/model/Category.dart';
-import 'package:app/model/Document.dart';
+import 'package:app/model/category.dart';
+import 'package:app/model/document.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

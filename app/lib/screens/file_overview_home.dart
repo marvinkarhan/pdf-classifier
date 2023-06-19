@@ -1,19 +1,14 @@
-import 'dart:developer';
+import 'dart:async';
 
 import 'package:app/api/i_backend_service.dart';
-import 'package:app/model/Category.dart';
-import 'package:app/model/Document.dart';
-import 'package:app/screens/pdf_viewer.dart';
+import 'package:app/model/category.dart';
+import 'package:app/model/document.dart';
+import 'package:app/utils/service_locator.dart';
 import 'package:app/widgets/category_list_tile_widget.dart';
 import 'package:app/widgets/file_category_speed_dial_widget.dart';
 import 'package:app/widgets/search_widget.dart';
-import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:flutter_slidable/flutter_slidable.dart';
-import 'package:flutter_speed_dial/flutter_speed_dial.dart';
-import 'package:get_it/get_it.dart';
-import 'package:app/utils/service_locator.dart';
-import 'dart:async';
+import 'package:flutter/material.dart';
 
 import '../widgets/create_category_dialog_widget.dart';
 import '../widgets/file_list_tile_widget.dart';
@@ -32,8 +27,6 @@ class _FileOverviewHomeScreenState extends State<FileOverviewHomeScreen> {
   final BackendService backendService = sl.get<BackendService>();
   final List<String> _categoryStack = ["root"];
   List<Category> _selectedCategories = [];
-  final TextEditingController _createCategoryTextFieldController =
-      TextEditingController();
   bool _searching = false;
 
   @override
