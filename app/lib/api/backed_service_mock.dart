@@ -66,6 +66,10 @@ class BackendServiceMock implements BackendService {
 
   @override
   Future<List<Document>> queryDocumentById(String id) async {
+    if (id == "ERROR") {
+      onError?.call("MOCK ERROR");
+      return [];
+    }
     List<Document> mockDocuments = [];
     mockDocuments = await getAllDocuments();
     for (var element in mockDocuments) {
@@ -89,7 +93,7 @@ class BackendServiceMock implements BackendService {
   Future<bool> postCategory(String title, String? parentId) async {
     double nr = categoriesStore.length + 1;
     Category newCat = Category(
-        id: "mockIdCat$nr", title: "mockTitle$nr", parentId: "mockParentId$nr");
+        id: "mockIdCat$nr", title: "mockTitle$nr", parentId: "root");
     categoriesStore.add(newCat);
     return true;
   }

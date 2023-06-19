@@ -141,7 +141,9 @@ class _FileOverviewHomeScreenState extends State<FileOverviewHomeScreen> {
       builder: (context) {
         return AlertDialog(
           title: const Text('Create a category'),
+          key: const Key("createCatDialog"),
           content: TextField(
+            key: const Key("newCatTitleTextField"),
             controller: _createCategoryTextFieldController,
             decoration: const InputDecoration(hintText: "Category title"),
             autofocus: true,
@@ -155,6 +157,7 @@ class _FileOverviewHomeScreenState extends State<FileOverviewHomeScreen> {
               },
             ),
             OutlinedButton(
+              key: const Key("createCatSaveBtn"),
               style: ButtonStyle(
                 foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
                 backgroundColor: MaterialStateProperty.all<Color>(Colors.blue),
@@ -223,6 +226,7 @@ class _FileOverviewHomeScreenState extends State<FileOverviewHomeScreen> {
             labelStyle: const TextStyle(
                 fontWeight: FontWeight.w500, color: Colors.blue),
             labelBackgroundColor: Colors.white,
+            key: const Key("createCatBtn")
           ),
         ],
       ),
