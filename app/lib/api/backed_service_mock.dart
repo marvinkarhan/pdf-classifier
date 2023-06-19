@@ -13,13 +13,13 @@ class BackendServiceMock implements BackendService {
       id: "mockIdCat1",
       title: "mockCatTitle1",
       parentId: "root",
-      fileIds: ["mockId1"]);
+      fileIds: ["mockIdFile1"]);
   final Category _mockCat2 =
       Category(
       id: "mockIdCat2",
       title: "mockCatTitle1",
       parentId: "mockIdCat2",
-      fileIds: ["mockId2"]);
+      fileIds: ["mockIdFile2"]);
   List<Document> documentsStore = [];
   List<Category> categoriesStore = [];
   void Function(String message)? onError;

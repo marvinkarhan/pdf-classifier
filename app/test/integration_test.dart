@@ -19,9 +19,8 @@ void main() {
     await tester.pumpWidget(const MyApp());
     await tester.pumpAndSettle();
     expect(find.text("Document Classifier"), findsOneWidget);
-    // Check if received and rendered the two categories
-    Iterable<ListTile> listWidgets4 = tester.widgetList(find.byType(ListTile));
-    expect(find.byType(ListTile), findsNWidgets(4));
+    // Check if received and rendered the one category and one file
+    expect(find.byType(ListTile), findsNWidgets(2));
     // Check if the add file button is there
     expect(find.byType(FloatingActionButton), findsOneWidget);
     // CHeck if text search field is there
