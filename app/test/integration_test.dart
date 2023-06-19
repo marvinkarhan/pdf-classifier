@@ -20,7 +20,8 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text("Document Classifier"), findsOneWidget);
     // Check if received and rendered the two categories
-    expect(find.byType(ListTile), findsNWidgets(2));
+    Iterable<ListTile> listWidgets4 = tester.widgetList(find.byType(ListTile));
+    expect(find.byType(ListTile), findsNWidgets(4));
     // Check if the add file button is there
     expect(find.byType(FloatingActionButton), findsOneWidget);
     // CHeck if text search field is there
@@ -51,8 +52,8 @@ void main() {
       i++;
     }
     // Test deletion of document from the view
-    await tester.tap(find.byKey(const Key("delFileBtn_mockId1")));
+    await tester.drag(find.byKey(const Key("mockIdFile1")), const Offset(200, 0));
     await tester.pumpAndSettle();
-    expect(find.byType(ListTile), findsNWidgets(2));
+    expect(find.byType(ListTile), findsNWidgets(3));
   });
 }
