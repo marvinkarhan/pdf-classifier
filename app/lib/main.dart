@@ -1,5 +1,5 @@
 import 'package:app/model/config.dart';
-import 'package:app/screens/file_overview_home.dart';
+import 'package:app/screens/file_category_overview.dart';
 import 'package:app/screens/pdf_viewer.dart';
 import 'package:app/utils/service_locator.dart';
 import 'package:flutter/material.dart';
