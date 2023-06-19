@@ -39,6 +39,7 @@ void main() {
     expect(find.byType(ListTile), findsNWidgets(3));
 
     // Test querying
+    Iterable<ListTile> listWid3gets = tester.widgetList(find.byType(ListTile));
     await tester.enterText(find.byType(TextField), "MOCK");
     await tester.pump(const Duration(milliseconds: 600));
     Iterable<ListTile> listWidgets = tester.widgetList(find.byType(ListTile));
@@ -63,10 +64,16 @@ void main() {
       expect(certainty, certaintyResults[i]);
       i++;
     }
+    // Reset back to initial view
+    await tester.enterText(find.byType(TextField), "");
+    await tester.pump(const Duration(milliseconds: 600));
+
     // Test deletion of document from the view
-    await tester.drag(find.byKey(const Key("mockIdFile1")), const Offset(200, 0));
+    await tester.drag(find.byKey(const Key("mockIdFile3")), const Offset(-500, 0));
     await tester.pumpAndSettle();
-    expect(find.byType(ListTile), findsNWidgets(3));
+    await tester.tap(find.byKey(const Key("delFileBtn_mockIdFile3")));
+    await tester.pumpAndSettle();
+    expect(find.byType(ListTile), findsNWidgets(2));
 
 
     // Test if Error Popup opens
