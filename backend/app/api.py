@@ -169,13 +169,13 @@ def create_category():
             return f"Parent category does not exist", 400
     # check if a category exists with the same name and parentId
     result = (
-        db.query.get("Category", ["title"])
+        db.query.get("Category", ["title", "parentId"])
         .with_where(
             {
                 "operator": "And",
                 "operands": [
                     {"path": ["title"], "operator": "Equal", "valueText": category["title"]},
-                    {"path": ["title"], "operator": "Equal", "valueText": category["title"]}
+                    {"path": ["parentId"], "operator": "Equal", "valueText": category["parentId"]}
                 ],
             }
         )
