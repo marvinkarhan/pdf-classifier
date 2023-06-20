@@ -37,57 +37,57 @@ class _FileOverviewHomeScreenState extends State<FileOverviewHomeScreen> {
   }
 
   void reload() {
-    getDocumentsFromBackend();
-    getCategoriesFromBackend();
+    Future.wait([getCategoriesFromBackend(), getDocumentsFromBackend()])
+        .then((value) => _setVisibleFilesCategories());
   }
 
-  void getDocumentsFromBackend([String query = ""]) {
+  Future<void> getDocumentsFromBackend([String query = ""]) async {
     if (query.isEmpty) {
       _searching = false;
-      backendService.getAllDocuments().then((docs) {
-        _files.clear();
-        _files.addAll(docs);
-        setState(() {});
-      });
+      var docs = await backendService.getAllDocuments();
+      _files.clear();
+      _files.addAll(docs);
     } else {
       _searching = true;
-      backendService.queryDocumentById(query).then((docs) {
-        _files.clear();
-        _files.addAll(docs);
-        setState(() {});
-      });
+      var docs = await backendService.queryDocumentById(query);
+      _files.clear();
+      _files.addAll(docs);
     }
   }
 
-  void getCategoriesFromBackend() {
-    backendService.getAllCategories().then((cats) {
-      _categories.clear();
-      _categories.addAll(cats);
-      setSelectedCategory(_categoryStack.last);
-      setState(() {});
-    });
+  Future<void> getCategoriesFromBackend() async {
+    var cats = await backendService.getAllCategories();
+    _categories.clear();
+    _categories.addAll(cats);
+    setSelectedCategory(_categoryStack.last);
   }
 
   void setSelectedCategory(String category) {
     if (_categoryStack.last != category) {
       _categoryStack.add(category);
     }
-    _selectedCategories =
-        _categories.where((element) => element.parentId == category).toList();
-    if (category == "root") {
+    _setVisibleFilesCategories();
+
+    setState(() {});
+  }
+
+  void _setVisibleFilesCategories() {
+    _selectedCategories = _categories
+        .where((element) => element.parentId == _categoryStack.last)
+        .toList();
+    if (_categoryStack.last == "root") {
       // Show all unassigned documents
       _visibleFiles = _files
           .where((file) =>
               !_categories.any((c) => c.fileIds?.contains(file.id) ?? false))
           .toList();
     } else {
-      final currentCategory =
-          _categories.firstWhere((element) => element.id == category);
+      final currentCategory = _categories
+          .firstWhere((element) => element.id == _categoryStack.last);
       _visibleFiles = _files
           .where((file) => currentCategory.fileIds?.contains(file.id) ?? false)
           .toList();
     }
-
     setState(() {});
   }
 
