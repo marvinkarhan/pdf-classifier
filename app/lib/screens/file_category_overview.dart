@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer';
 
 import 'package:app/api/i_backend_service.dart';
 import 'package:app/model/category.dart';
@@ -53,6 +54,7 @@ class _FileOverviewHomeScreenState extends State<FileOverviewHomeScreen> {
       _files.clear();
       _files.addAll(docs);
     }
+    setState(() {});
   }
 
   Future<void> getCategoriesFromBackend() async {
@@ -200,6 +202,7 @@ class _FileOverviewHomeScreenState extends State<FileOverviewHomeScreen> {
   }
 
   Widget _buildFileList() {
+    log("Building file list");
     return ListView.separated(
         itemCount: _files.length,
         itemBuilder: (BuildContext ctxt, int index) => FileListTile(
@@ -210,6 +213,7 @@ class _FileOverviewHomeScreenState extends State<FileOverviewHomeScreen> {
   }
 
   Widget _buildCategoryFileList() {
+    log("Building category file list");
     return ListView.separated(
         itemCount: _visibleFiles.length +
             _selectedCategories.length +
