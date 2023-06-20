@@ -185,7 +185,8 @@ def create_category():
         return f"Category already exists", 400
 
     id = db.data_object.create(category, "Category")
-    assign_documents_to_categories(id)
+    # TODO: should assign based on category id and tree traversal, but does not work as intended
+    assign_documents_to_categories("root")
     return id, 201
     # except Exception as e:
     #     return f"Cloud not create the category: {e}", 400
