@@ -247,10 +247,11 @@ def assign_documents_to_categories_helper(categories, category_level, file_ids):
         highest_certainty = 0
         closest_category = None
         for category, distances in documents_per_category.items():
-            result = next((d for d in distances if d["_additional"]["id"] == file_id), None)
-            if result and result["_additional"]["certainty"] > highest_certainty:
-                highest_certainty = result["_additional"]["certainty"]
-                closest_category = category
+            if distances is not None:
+                result = next((d for d in distances if d["_additional"]["id"] == file_id), None)
+                if result and result["_additional"]["certainty"] > highest_certainty:
+                    highest_certainty = result["_additional"]["certainty"]
+                    closest_category = category
         # assign document to current category level if blow threshold
         if highest_certainty < 0.8 or not closest_category:
             unassigned.append(file_id)
