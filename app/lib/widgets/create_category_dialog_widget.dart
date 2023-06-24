@@ -26,6 +26,7 @@ class _CreateCategoryDialogState extends State<CreateCategoryDialog> {
       ),
       actions: <Widget>[
         OutlinedButton(
+          key: const Key("createCatCancelBtn"),
           child: const Text('cancel'),
           onPressed: () {
             _createCategoryTextFieldController.clear();
