@@ -17,7 +17,7 @@ Um die Anwendung zu starten, führen Sie die folgenden Befehle in Ihrer Konsole 
 ```bash
 cd app
 flutter pub get
-flutter run
+flutter run --release
 ```
 
 ## Tests durchführen
@@ -37,7 +37,7 @@ Für die Einrichtung der Entwicklungsumgebung wird ein Docker Compose-Setup bere
 docker compose up -d
 cd app
 flutter pub get
-flutter run
+flutter run --dart-define=env="dev"
 ```
 
 ## Zukunftsausblick

@@ -13,7 +13,7 @@ class Config {
 
   Future<void> loadForEnv(String? env) async {
     if (env == '') env = null;
-    env = env ?? "dev";
+    env = env ?? "prod";
     final fileContent = await rootBundle.loadString(
       "assets/config/$env.json",
     );
