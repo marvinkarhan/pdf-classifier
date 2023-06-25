@@ -1,21 +1,36 @@
+import 'dart:io';
 
 import 'package:app/api/i_backend_service.dart';
 import 'package:app/model/category.dart';
 import 'package:app/model/document.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:path_provider/path_provider.dart';
 
 class BackendServiceMock implements BackendService {
-  final Document _mockDoc1 = Document(id: "mockIdFile1", title: "mockFileTitle1", content: "mockContent1", distance: 0.80, certainty: 0.69);
-  final Document _mockDoc2 = Document(id: "mockIdFile2", title: "mockFileTitle2", content: "mockContent2", distance: 0.70, certainty: 0.59);
-  final Document _mockDoc3 = Document(id: "mockIdFile3", title: "mockFileTitle3", content: "mockContent3", distance: 0.60, certainty: 0.49);
-  final Category _mockCat1 =
-      Category(
+  final Document _mockDoc1 = Document(
+      id: "mockIdFile1",
+      title: "mockFileTitle1",
+      content: "mockContent1",
+      distance: 0.80,
+      certainty: 0.69);
+  final Document _mockDoc2 = Document(
+      id: "mockIdFile2",
+      title: "mockFileTitle2",
+      content: "mockContent2",
+      distance: 0.70,
+      certainty: 0.59);
+  final Document _mockDoc3 = Document(
+      id: "mockIdFile3",
+      title: "mockFileTitle3",
+      content: "mockContent3",
+      distance: 0.60,
+      certainty: 0.49);
+  final Category _mockCat1 = Category(
       id: "mockIdCat1",
       title: "mockCatTitle1",
       parentId: "root",
       fileIds: ["mockIdFile1"]);
-  final Category _mockCat2 =
-      Category(
+  final Category _mockCat2 = Category(
       id: "mockIdCat2",
       title: "mockCatTitle1",
       parentId: "mockIdCat2",
@@ -48,7 +63,9 @@ class BackendServiceMock implements BackendService {
 
   @override
   Future<String> downloadDocumentById(String id) async {
-    return "/$id";
+    File sourceFile = File('test_resources/sample.pdf');
+
+    return sourceFile.path;
   }
 
   @override
@@ -59,7 +76,12 @@ class BackendServiceMock implements BackendService {
   @override
   Future<bool> postDocument(PlatformFile file) async {
     double nr = documentsStore.length + 1;
-    Document newDoc = Document(id: "mockId$nr", title: "mockTitle$nr", content: "mockContent$nr", distance: 10 + nr, certainty: 10 + nr);
+    Document newDoc = Document(
+        id: "mockId$nr",
+        title: "mockTitle$nr",
+        content: "mockContent$nr",
+        distance: 10 + nr,
+        certainty: 10 + nr);
     documentsStore.add(newDoc);
     return true;
   }
@@ -92,8 +114,8 @@ class BackendServiceMock implements BackendService {
   @override
   Future<bool> postCategory(String title, String? parentId) async {
     int nr = categoriesStore.length + 1;
-    Category newCat = Category(
-        id: "mockIdCat$nr", title: "mockTitle$nr", parentId: parentId);
+    Category newCat =
+        Category(id: "mockIdCat$nr", title: "mockTitle$nr", parentId: parentId);
     categoriesStore.add(newCat);
     return true;
   }

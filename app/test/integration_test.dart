@@ -146,7 +146,6 @@ void main() {
     // Navigate back to the root category
     await tester.tap(find.byIcon(Icons.arrow_back));
     await tester.pumpAndSettle();
-    Iterable<ListTile> listWidgets = tester.widgetList(find.byType(ListTile));
     expect(find.byType(ListTile), findsNWidgets(2),
         reason: "The root directory should contain 2 elements");
     await tester.pumpAndSettle();
