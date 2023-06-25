@@ -12,16 +12,34 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:5000/api/v1/document/all",
-					"protocol": "http",
+					"raw": "{{baseUrl}}/api/v1/document/all",
 					"host": [
-						"localhost"
+						"{{baseUrl}}"
 					],
-					"port": "5000",
 					"path": [
 						"api",
 						"v1",
 						"document",
+						"all"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "category/all",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/api/v1/category/all",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"category",
 						"all"
 					]
 				}
@@ -39,17 +57,21 @@
 						{
 							"key": "file",
 							"type": "file",
-							"src": "/C:/Users/Marvin/Downloads/BDEA_Aufgabe_1.pdf"
+							"src": "/C:/Users/Marvin/Desktop/pdf-classifier/backend/files/Anlage 1.pdf"
+						},
+						{
+							"key": "path",
+							"value": "",
+							"type": "text",
+							"disabled": true
 						}
 					]
 				},
 				"url": {
-					"raw": "http://localhost:5000/api/v1/document",
-					"protocol": "http",
+					"raw": "{{baseUrl}}/api/v1/document",
 					"host": [
-						"localhost"
+						"{{baseUrl}}"
 					],
-					"port": "5000",
 					"path": [
 						"api",
 						"v1",
@@ -60,28 +82,80 @@
 			"response": []
 		},
 		{
-			"name": "document/delete/:id",
+			"name": "category",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"title\": \"bdea\"\r\n    // \"parentId\": \"de29d54e-08a4-4bb0-b3e1-13cc21ea6533\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/v1/category",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"category"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "resource/delete/:id",
 			"request": {
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:5000/api/v1/document/delete/:id",
-					"protocol": "http",
+					"raw": "{{baseUrl}}/api/v1/resource/delete/:id",
 					"host": [
-						"localhost"
+						"{{baseUrl}}"
 					],
-					"port": "5000",
 					"path": [
 						"api",
 						"v1",
-						"document",
+						"resource",
 						"delete",
 						":id"
 					],
 					"variable": [
 						{
 							"key": "id",
-							"value": "f21284f0-0a8b-48bc-820b-c8b92e4a4e26"
+							"value": "7d5c0102-659b-4a66-8e24-55fbaa4e77be"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "document/:id",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/api/v1/document/:id",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"document",
+						":id"
+					],
+					"variable": [
+						{
+							"key": "id",
+							"value": "eddf6035-0c05-43ca-a784-7e1f3e91be02"
 						}
 					]
 				}
@@ -94,12 +168,10 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:5000/api/v1/document/query/:query",
-					"protocol": "http",
+					"raw": "{{baseUrl}}/api/v1/document/query/:query",
 					"host": [
-						"localhost"
+						"{{baseUrl}}"
 					],
-					"port": "5000",
 					"path": [
 						"api",
 						"v1",
@@ -116,6 +188,37 @@
 				}
 			},
 			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:5000",
+			"type": "string"
+		},
+		{
+			"value": "http://pdf-c-loadb-1148o0tv5f62k-e4574b78a9029e06.elb.eu-central-1.amazonaws.com:5000",
+			"type": "string"
 		}
 	]
 }

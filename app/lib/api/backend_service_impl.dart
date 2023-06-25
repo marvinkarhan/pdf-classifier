@@ -28,7 +28,8 @@ class BackendServiceImpl implements BackendService {
   void Function(String message)? onError;
 
   BackendServiceImpl() {
-    backendUri = Config().backendUrl!;
+    // using localhost:5000 for testing
+    backendUri = Config().backendUrl ?? "http://mock-api";
   }
 
   @override
@@ -95,6 +96,9 @@ class BackendServiceImpl implements BackendService {
 
   @override
   Future<String> downloadDocumentById(String id) async {
+    if (backendUri == "http://mock-api") {
+      return 'test_resources/sample.pdf';
+    }
     String dir = (await getApplicationDocumentsDirectory()).path;
     File checkFile = File('$dir/$id');
     if (checkFile.existsSync() == true) {
@@ -105,8 +109,10 @@ class BackendServiceImpl implements BackendService {
       "Connection": "Keep-Alive",
       "Keep-Alive": "timeout=10"
     };
-    final res = await http.get(Uri.parse(
-        "$backendUri${BackendServiceImpl.downloadDocumentByIdUri}/$id"), headers: headers);
+    final res = await http.get(
+        Uri.parse(
+            "$backendUri${BackendServiceImpl.downloadDocumentByIdUri}/$id"),
+        headers: headers);
     if (res.statusCode != 201 && res.statusCode != 200) {
       onError?.call("Error during document fetch, cannot query documents");
       return "";

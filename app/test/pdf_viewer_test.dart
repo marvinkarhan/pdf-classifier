@@ -4,11 +4,20 @@ import 'package:app/screens/pdf_viewer.dart';
 import 'package:app/utils/service_locator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:nock/nock.dart';
 import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 
+import 'http_interceptor.dart';
+
 void main() {
-  setUpAll(() {
+  setUpAll(() async {
     setupSlMock(); // register mock backend service for dependency injection
+    nock.init();
+  });
+
+  setUp(() {
+    nock.cleanAll();
+    mockApis();
   });
 
   testWidgets('PDFViewer should load document and display it',

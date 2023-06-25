@@ -3,10 +3,19 @@ import 'package:app/utils/service_locator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:nock/nock.dart';
+
+import 'http_interceptor.dart';
 
 void main() {
-  setUpAll(() {
+  setUpAll(() async {
     setupSlMock(); // register mock backend service for dependency injection
+    nock.init();
+  });
+
+  setUp(() {
+    nock.cleanAll();
+    mockApis();
   });
 
   testWidgets(
@@ -90,6 +99,7 @@ void main() {
     await tester.drag(
         find.byKey(const Key("mockIdFile3")), const Offset(-500, 0));
     await tester.pumpAndSettle();
+    lastCreatedDocument = "mockIdFile3";
     await tester.tap(find.byKey(const Key("delFileBtn_mockIdFile3")));
     await tester.pumpAndSettle();
     expect(find.byType(ListTile), findsNWidgets(1),

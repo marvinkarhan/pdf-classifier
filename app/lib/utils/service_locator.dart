@@ -1,4 +1,3 @@
-import 'package:app/api/backed_service_mock.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:get_it/get_it.dart';
 
@@ -14,6 +13,6 @@ void setupSl() {
 }
 
 void setupSlMock() {
-  sl.registerSingleton<BackendService>(BackendServiceMock());
+  sl.registerSingleton<BackendService>(BackendServiceImpl());
   sl.registerSingleton<FilePicker>(FilePickerMock());
 }
