@@ -17,7 +17,7 @@ Um die Anwendung zu starten, führen Sie die folgenden Befehle in Ihrer Konsole 
 ```bash
 cd app
 flutter pub get
-flutter run --release
+flutter run
 ```
 
 ## Tests durchführen
