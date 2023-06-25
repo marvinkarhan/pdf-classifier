@@ -14,13 +14,7 @@ void main() {
       (WidgetTester tester) async {
     await tester.pumpWidget(const MyApp());
     await tester.pumpAndSettle();
-    expect(find.text("Document Classifier"), findsOneWidget);
-    // Check if received and rendered the one category and one file
-    expect(find.byType(ListTile), findsNWidgets(2));
-    // Check if the add file button is there
-    expect(find.byType(FloatingActionButton), findsOneWidget);
-    // Check if text search field is there
-    expect(find.byType(TextField), findsOneWidget);
+    _testInitState();
 
     // Test canceling of new category dialog
     await tester.tap(find.byType(SpeedDial));
@@ -102,10 +96,70 @@ void main() {
         reason:
             "After the document is deleted we should only have the category left");
 
+    // Test adding a new document
+    await tester.tap(find.byType(SpeedDial));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key("addFilesBtn")));
+    await tester.pumpAndSettle();
+    expect(find.byType(ListTile), findsNWidgets(2),
+        reason:
+            "After a new document is added we should have the category and the document");
+
     // Test if Error Popup opens
     await tester.enterText(find.byType(TextField), "ERROR");
     await tester.pump(const Duration(milliseconds: 600));
     expect(find.byType(AlertDialog), findsOneWidget,
         reason: "After triggering the alert the dialog should have popped up");
   });
+
+  testWidgets(
+      'Document Classifier Integration Test for creating subcategory using mock data from the backend_service_mock',
+      (WidgetTester tester) async {
+    await tester.pumpWidget(const MyApp());
+    await tester.pumpAndSettle();
+
+    expect(find.byType(ListTile), findsNWidgets(2),
+        reason: "The root directory should contain 2 elements");
+
+    // Navigate to the existing subCategory
+    await tester.tap(find.text("mockCatTitle1"));
+    await tester.pumpAndSettle();
+    expect(find.byType(ListTile), findsNWidgets(2));
+
+    // Trigger to create a new category which is a subcategory
+    await tester.tap(find.byType(SpeedDial));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key("createCatBtn")));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key("createCatDialog")), findsOneWidget);
+
+    // Fill in the details for the new subcategory
+    Finder textFieldFinder = find.byKey(const Key("newCatTitleTextField"));
+    await tester.enterText(textFieldFinder, "newMockSubCatTitle");
+    await tester.tap(find.byKey(const Key("createCatSaveBtn")));
+    await tester.pumpAndSettle();
+
+    // Verify that the subcategory is visible within the selected category.
+    expect(find.byType(ListTile), findsNWidgets(3),
+        reason: "An additional category should be visible");
+
+    // Navigate back to the root category
+    await tester.tap(find.byIcon(Icons.arrow_back));
+    await tester.pumpAndSettle();
+    Iterable<ListTile> listWidgets = tester.widgetList(find.byType(ListTile));
+    expect(find.byType(ListTile), findsNWidgets(2),
+        reason: "The root directory should contain 2 elements");
+    await tester.pumpAndSettle();
+  });
+}
+
+void _testInitState() {
+  expect(find.text("Document Classifier"), findsOneWidget);
+  // Check if received and rendered the one category and one file
+  var listLiteFinder = find.byType(ListTile);
+  expect(listLiteFinder, findsNWidgets(2));
+  // Check if the add file button is there
+  expect(find.byType(FloatingActionButton), findsOneWidget);
+  // Check if text search field is there
+  expect(find.byType(TextField), findsOneWidget);
 }

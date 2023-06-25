@@ -26,6 +26,7 @@ class _FileOverviewHomeScreenState extends State<FileOverviewHomeScreen> {
   List<Document> _visibleFiles = [];
   final List<Category> _categories = [];
   final BackendService backendService = sl.get<BackendService>();
+  final FilePicker filePicker = sl.get<FilePicker>();
   final List<String> _categoryStack = ["root"];
   List<Category> _selectedCategories = [];
   bool _searching = false;
@@ -94,7 +95,7 @@ class _FileOverviewHomeScreenState extends State<FileOverviewHomeScreen> {
   }
 
   void pickFiles() async {
-    final pickedFiles = await FilePicker.platform.pickFiles(
+    final pickedFiles = await filePicker.pickFiles(
         allowMultiple: true,
         type: FileType.custom,
         allowedExtensions: ['pdf'],

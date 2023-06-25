@@ -93,7 +93,7 @@ class BackendServiceMock implements BackendService {
   Future<bool> postCategory(String title, String? parentId) async {
     int nr = categoriesStore.length + 1;
     Category newCat = Category(
-        id: "mockIdCat$nr", title: "mockTitle$nr", parentId: "root");
+        id: "mockIdCat$nr", title: "mockTitle$nr", parentId: parentId);
     categoriesStore.add(newCat);
     return true;
   }

@@ -27,6 +27,7 @@ class FileCategorySpeedDial extends StatelessWidget {
           labelStyle:
               const TextStyle(fontWeight: FontWeight.w500, color: Colors.blue),
           labelBackgroundColor: Colors.white,
+          key: const Key("addFilesBtn"),
         ),
         SpeedDialChild(
             child: const Icon(Icons.create_new_folder, color: Colors.blue),
